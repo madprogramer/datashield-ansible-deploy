@@ -1,0 +1,4 @@
+---
+opaluser: opaluser   # MongoDB Username for Opal User
+opalpass: opalpass   # MongoDB Password for Opal User
+opalport: 8443       # Port to serve Opal on

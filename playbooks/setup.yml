@@ -1,0 +1,203 @@
+---
+- hosts: DSservers
+  tasks:
+    - name: Checking System Information
+      debug:
+        msg: "The hostname is {{ ansible_distribution }}, version: {{ ansible_facts['lsb']['release'] }}."
+
+    - name: Gathering Package Facts
+      package_facts:
+        manager: auto
+
+    - name: MongoDB Installation and Configuration
+      block:
+        - name: MongoDB Installation
+          # Following https://www.mongodb.com/docs/v5.0/tutorial/install-mongodb-on-ubuntu/
+          block:
+            - name: MongoDB - Installing GNU PG
+              become: true
+              apt:
+                name: gnupg
+
+            - name: MongoDB - Get MongoDB PGP
+              become: true
+              shell: curl -fsSL https://pgp.mongodb.com/server-5.0.asc | \ sudo gpg -o /usr/share/keyrings/mongodb-server-5.0.gpg \ --dearmor
+              async: 60
+              poll: 60
+              register: mongodb_pgp_output
+    
+            - name: MongoDB - Check PGP installed
+              debug: var=mongodb_pgp_output
+    
+            - name: MongoDB - Create a list file for MongoDB
+              shell: echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-5.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+              register: mongodb_list_file_output
+    
+            - name: MongoDB - Check MongoDB list file installed
+              debug: var=mongodb_list_file_output
+    
+            - name: MongoDB - Update apt packages
+              become: true
+              apt:
+                update_cache: yes
+
+            - name: MongoDB - Installing MongoDB.
+              apt:
+                name: mongodb
+          when: "not 'mongodb' in ansible_facts.packages"
+
+        - name: MongoDB - Check if MongoDB Configured
+          set_fact:
+            MongoDB_Configured: (MongoDB_Moved_Before & MongoDB_Opal_User_Created ) | false
+            # MongoDB_Configured: false
+  
+        - name: Move MongoDB
+          block: 
+            - name: MongoDB - Stop
+              systemd:
+                name: mongodb
+                state: stopped
+            - name: MongoDB - Mount MongoDB
+              copy:
+                src: /var/lib/mongodb
+                dest: /mnt/mongodb
+                owner: mongodb
+                group: mongodb
+                remote_src: true
+                #mode: u=rw,g=r,o=r
+            - name: MongoDB - Remove Original MongoDB lib
+              file:
+                path: /var/lib/mongodb
+                state: absent
+            - name: MongoDB - Create Symbolic Link
+              become: true 
+              file:
+                src: "/mnt/mongodb"
+                dest: "/var/lib/mongodb"
+                owner: mongodb
+                group: mongodb
+                state: link
+                force: yes   
+              with_items:
+                - src: terraform
+                - src: tfenv
+            - name: MongoDB - Restart
+              systemd:
+                name: mongodb
+                state: restarted
+            - name: MongoDB - Mark as Moved
+              set_fact:
+                MongoDB_Moved_Before: true
+          when: "not MongoDB_Configured"
+
+        - name: MongoDB - Create Opal User
+          shell: 'mongo admin --eval "db.createUser({user: \"{{opaluser}}\", pwd: \"{{opalpass}}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
+          register: mongodb_opal_user_output
+          when: "not MongoDB_Configured"
+
+        - name: MongoDB - Mark Opal User as Created
+          set_fact:
+            MongoDB_Opal_User_Created: true
+          when: "not MongoDB_Configured"
+
+    - name: R Installation
+      block:
+        - name: R - Add apt Key
+          become: true
+          apt_key:
+            keyserver: keyserver.ubuntu.com
+            id: E298A3A825C0D65DFD57CBB651716619E084DAB9
+
+        # - name: R - Add apt Key
+        #   become: true
+        #   shell: "add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/'"
+
+        # - name: R - Update apt packages
+        #   become: true
+        #   apt:
+        #     update_cache: yes
+
+        - name: R - Install Base R
+          ansible.builtin.apt:
+            pkg:
+              - r-base 
+              - r-base-core 
+              - r-base-dev
+        - name: R - Install R Packages
+          apt:
+            pkg:
+              - libpq-dev 
+              - libmariadbclient-dev 
+              - libssh-dev 
+              - libssl-dev 
+              - libsasl2-dev 
+              - libxml2-dev 
+              - libcurl4-openssl-dev 
+              - libfontconfig1-dev
+              - libmagick++-dev 
+              - freeglut3-dev 
+              - libharfbuzz-dev 
+              - libfribidi-dev  
+              - libjq-dev 
+              - cmake 
+              - cargo
+
+    # - name: OpalR Installation
+    #   block:
+    #     - name: OpalR - Installation, this might take a while
+    #       shell: Rscript -e "install.packages(c('resourcer', 'opalr', 'tidyverse', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cloud.r-project.org', 'https://cran.obiba.org'), dependencies=TRUE, lib='/usr/local/lib/R/site-library')"
+    #     - name: OpalR - Also Installing Rserve
+    #       shell: Rscript -e "install.packages('Rserve', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #     - name: OpalR - Also Installing lme4
+    #       shell: Rscript -e "install.packages('lme4', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #     - name: OpalR - Also Installing dplyr
+    #       shell: Rscript -e "install.packages('dplyr', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #     - name: OpalR - Also Installing reshape2
+    #       shell: Rscript -e "install.packages('reshape2', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+
+    - name: Opal Installation
+      block:
+        - name: Opal - Get Opal Checksum
+          become: true
+          shell: curl -fsSL https://www.obiba.org/assets/obiba-pub.pem | sudo apt-key add -
+          register: opal_obiba_ouput
+        - name: Opal - Tee Opal
+          become: true
+          shell: echo 'deb https://obiba.jfrog.io/artifactory/debian-local all main' | sudo tee /etc/apt/sources.list.d/obiba.list
+          register: opal_tee_output
+        - name: Opal - Update apt packages
+          become: true
+          apt:
+            update_cache: yes
+        - name: Opal - Installing Opal
+          apt:
+            name: opal
+        - name: Opal - Configure Port
+          lineinfile:
+            path: /etc/opal/opal-config.properties
+            search_string: 'org.obiba.realm.url'
+            line: "org.obiba.realm.url=https://localhost:{{opalport}}"
+        - name: Opal - Restarting Opal to Run on Custom Port
+          systemd:
+            name: opal
+            state: restarted
+        - name: Opal - Installing Rock
+          apt:
+            name: rock
+        - name: Opal - Check if Rock Running
+          systemd:
+            name: rock
+            state: started
+        # TODO: ADD VARIABLES FOR ROCK NAME AND PASS 
+        # https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
+
+
+    - name: Opal Python API Installation
+      block:
+        - name: PIP Installation
+          apt:
+            name: python3-pip
+        - name: Opal Python API Installation
+          become: true
+          shell: pip install obiba-opal
+          register: obiba_opal_output

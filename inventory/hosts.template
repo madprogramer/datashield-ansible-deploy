@@ -1,0 +1,4 @@
+[DSservers]
+# Below this line add your list of hosts 
+# 10.0.0.0        hosts can be IPv4 addresses
+# ds_server_1     or hosts can be hosts defined in your ~/.ssh/hosts file
