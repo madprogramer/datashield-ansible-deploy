@@ -17,6 +17,7 @@ jobs:
     - name: Prepare Ansible configuration for testing
       run: |
         make
+        echo 'Is this working?'
         echo '\n${{ secrets.TEST_HOST }} # Test Host supplied by secrets in GitHub Actions' >>inventory/hosts
 
     - name: Setting up SSH key
