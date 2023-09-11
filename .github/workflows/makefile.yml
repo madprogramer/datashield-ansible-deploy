@@ -17,6 +17,17 @@ jobs:
     - name: Prepare Ansible configuration for testing
       run: make
 
+    - name: Setting up SSH key
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+        
+    - name: Run Ansible Playbook
+      run: |
+        sudo apt update
+        sudo apt install -y ansible
+        ansible-playbook -i hosts.ini my-playbook.yml --private-key=private_key.pem --user=${{ secrets.REMOTE_USER }}
+
     #- name: Run check
     #  run: make check
 
