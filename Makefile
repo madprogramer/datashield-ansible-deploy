@@ -8,7 +8,7 @@ inventory/hosts: inventory/hosts.template
 	# Add Secrets
 	host="${{ secrets.TEST_HOST }}"
 	echo "host length: ${#host}"
-	echo '\n${{ secrets.TEST_HOST }} # Test Host supplied by secrets in GitHub Actions' >>inventory/hosts
+	echo '\n$\{{ secrets.TEST_HOST }} # Test Host supplied by secrets in GitHub Actions' >>inventory/hosts
 
 # Create DSservers.yml
 inventory/group_vars/DSservers.yml: inventory/group_vars/DSservers.template.yml
