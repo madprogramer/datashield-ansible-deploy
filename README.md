@@ -9,7 +9,7 @@ Ansible Playbook for Installing/Updating DataSHIELD ([Opal](https://www.obiba.or
 3. This playbook assumes a [host group](https://docs.ansible.com/ansible/latest/getting_started/get_started_inventory.html) called DSServer (abbreviation for DataSHIELD Server). 
 4. Copy the `inventory/hosts.template` file into a new **`inventory/hosts`** file and modify to add in your own hosts.
   * There should be **no** file extension at the end of **`inventory/hosts`**. Make sure not to save as **`inventory/hosts.txt`**
-5. **Copy the `inventory/group_vars/DSservers.template.yml` file into a new **`inventory/group_vars/DSservers.template.yml`** and make sure to modify variables to your own liking.
+5. Copy the `inventory/group_vars/DSservers.template.yml` file into a new **`inventory/group_vars/DSservers.template.yml`** and make sure to modify variables to your own liking.
 6. Run with `playbooks/setup.yml -i inventory` from inside `datashield-ansible-deploy`.
 
 ## Recommended Set-up
