@@ -18,7 +18,7 @@ jobs:
       run: |
         make
         echo 'Appending secret to inventory/hosts'
-        echo '\n${{ secrets.TEST_HOST }} # Test Host supplied by secrets in GitHub Actions' >>inventory/hosts
+        echo "${{ secrets.TEST_HOST }} # Test Host supplied by secrets in GitHub Actions" >>inventory/hosts
         cat inventory/hosts
 
     - name: Setting up SSH key
