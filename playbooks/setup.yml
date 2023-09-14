@@ -21,7 +21,7 @@
 
             - name: MongoDB - Get MongoDB PGP
               become: true
-              shell: curl -fsSL https://pgp.mongodb.com/server-5.0.asc | \ sudo gpg -o /usr/share/keyrings/mongodb-server-5.0.gpg \ --dearmor
+              shell: curl -fsSL https://pgp.mongodb.com/server-5.0.asc | \ gpg -o /usr/share/keyrings/mongodb-server-5.0.gpg --batch --yes \ --dearmor
               async: 60
               poll: 60
               register: mongodb_pgp_output
