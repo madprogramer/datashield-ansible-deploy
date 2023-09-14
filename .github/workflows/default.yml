@@ -33,7 +33,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y ansible
-        ansible-playbook -i inventory playbooks/setup.yml --private-key=private_key.pem --user=${{ secrets.REMOTE_USER }}
+        ansible-playbook -i inventory playbooks/setup.yml --private-key=private_key.pem --user=${{ secrets.REMOTE_USER }} -
     # Shout-outs to John Otieno
     # https://linuxhint.com/github-action-ansible/
 
