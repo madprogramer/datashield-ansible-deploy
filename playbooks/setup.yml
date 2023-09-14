@@ -170,6 +170,7 @@
           apt:
             update_cache: yes
         - name: Opal - Installing Opal
+          become: true
           apt:
             name: opal
         - name: Opal - Configure Port
@@ -178,13 +179,16 @@
             search_string: 'org.obiba.realm.url'
             line: "org.obiba.realm.url=https://localhost:{{opalport}}"
         - name: Opal - Restarting Opal to Run on Custom Port
+          become: true
           systemd:
             name: opal
             state: restarted
         - name: Opal - Installing Rock
+          become: true
           apt:
             name: rock
         - name: Opal - Check if Rock Running
+          become: true
           systemd:
             name: rock
             state: started
@@ -195,6 +199,7 @@
     - name: Opal Python API Installation
       block:
         - name: PIP Installation
+          become: true
           apt:
             name: python3-pip
         - name: Opal Python API Installation
