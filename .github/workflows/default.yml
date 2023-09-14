@@ -25,6 +25,7 @@ jobs:
       run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
         chmod 600 private_key.pem
+        ssh-keygen -f "/home/user/.ssh/known_hosts" -R "${{ secrets.TEST_HOST }}"
         
     - name: Run Ansible Playbook
       run: |
