@@ -25,10 +25,11 @@ jobs:
       run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
         chmod 600 private_key.pem
-        ls .ssh
-        # ssh-keyscan -H "${{ secrets.TEST_HOST }}" > ~/.ssh/known_hosts
-        # ssh-keygen -R "${{ secrets.TEST_HOST }}"
+        # Known Hosts
+        mkdir -p ~/.ssh/ && touch ~/.ssh/known_hosts
+        ssh-keyscan -H "${{ secrets.TEST_HOST }}" > ~/.ssh/known_hosts
         # ssh-keyscan -t ecdsa,ed25519 -H "${{ secrets.TEST_HOST }}" >> ~/.ssh/known_hosts 2>&1
+        # Shout-outs to https://stackoverflow.com/a/76465877/2089784
       env:
         GITHUB_HOSTNAME: github.com
         
