@@ -19,6 +19,7 @@ Ansible can run on virtually anything modern, but it is important that your host
 ### Recommended System Specifications (for Hosts)
 * Ubuntu 20 server.
 * **x86 Architecture.**
+* >4GB RAM
 
 ### SSH set-up
 * If you would like to use hosts with aliases you should modify your ssh config file. This is a file on the machine **you run Ansible from**, not on your hosts.
