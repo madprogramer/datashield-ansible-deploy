@@ -1,3 +1,4 @@
 *.pem
 *.xd
 inventory/hosts
+inventory/group_vars/DSservers.yml
