@@ -157,9 +157,9 @@
 
     - name: Opal Installation
       block:
-        - name: Opal - Get Opal Checksum
+        - name: Opal - Get Opal Key
           become: true
-          shell: curl -fsSL https://www.obiba.org/assets/obiba-pub.pem | sudo apt-key add -
+          shell: curl -fsSL https://www.obiba.org/assets/obiba-pub.pem | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/obiba.gpg
           register: opal_obiba_ouput
         - name: Opal - Tee Opal
           become: true
