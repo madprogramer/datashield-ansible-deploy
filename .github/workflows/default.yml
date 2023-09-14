@@ -19,13 +19,16 @@ jobs:
         make
         echo 'Appending secret to inventory/hosts'
         echo -e "\n${{ secrets.TEST_HOST }} # Test Host supplied by secrets in GitHub Actions" >>inventory/hosts
-        cat inventory/hosts
+        # cat inventory/hosts
 
     - name: Setting up SSH key
       run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
         chmod 600 private_key.pem
+        ls .ssh
         # ssh-keyscan -H "${{ secrets.TEST_HOST }}" > ~/.ssh/known_hosts
+        # ssh-keygen -R "${{ secrets.TEST_HOST }}"
+        # ssh-keyscan -t ecdsa,ed25519 -H "${{ secrets.TEST_HOST }}" >> ~/.ssh/known_hosts 2>&1
       env:
         GITHUB_HOSTNAME: github.com
         
@@ -33,7 +36,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y ansible
-        ansible-playbook -i inventory playbooks/setup.yml --private-key=private_key.pem --user=${{ secrets.REMOTE_USER }} -
+        ansible-playbook -i inventory playbooks/setup.yml --private-key=private_key.pem --user=${{ secrets.REMOTE_USER }} 
     # Shout-outs to John Otieno
     # https://linuxhint.com/github-action-ansible/
 
