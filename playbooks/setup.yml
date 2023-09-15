@@ -22,17 +22,18 @@
             - name: MongoDB - Get MongoDB PGP
               become: true
               shell: curl -fsSL https://pgp.mongodb.com/server-5.0.asc | \ gpg -o /usr/share/keyrings/mongodb-server-5.0.gpg --batch --yes \ --dearmor
-              async: 60
-              poll: 60
+              async: 10
+              poll: 10
               register: mongodb_pgp_output
     
             - name: MongoDB - Check PGP installed
               debug: var=mongodb_pgp_output
     
             - name: MongoDB - Create a list file for MongoDB
+              become: true
               shell: echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-5.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-              async: 60
-              poll: 60
+              async: 10
+              poll: 10
               register: mongodb_list_file_output
     
             - name: MongoDB - Check MongoDB list file installed
@@ -44,6 +45,7 @@
                 update_cache: yes
 
             - name: MongoDB - Installing MongoDB.
+              become: true
               apt:
                 name: mongodb
           when: "not 'mongodb' in ansible_facts.packages"
