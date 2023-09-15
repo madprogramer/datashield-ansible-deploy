@@ -122,12 +122,14 @@
         #     update_cache: yes
 
         - name: R - Install Base R
-          ansible.builtin.apt:
+          become: true
+          apt:
             pkg:
               - r-base 
               - r-base-core 
               - r-base-dev
         - name: R - Install R Packages
+          become: true
           apt:
             pkg:
               - libpq-dev 
