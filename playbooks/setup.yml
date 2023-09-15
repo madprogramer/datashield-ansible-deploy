@@ -180,6 +180,7 @@
           apt:
             name: opal
         - name: Opal - Configure Port
+          become: true
           lineinfile:
             path: /etc/opal/opal-config.properties
             search_string: 'org.obiba.realm.url'
@@ -193,6 +194,8 @@
           become: true
           apt:
             name: rock
+          async: 10
+          poll: 10
         - name: Opal - Check if Rock Running
           become: true
           systemd:
