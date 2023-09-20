@@ -190,19 +190,56 @@
           systemd:
             name: opal
             state: restarted
-        - name: Opal - Installing Rock
+    - name: Rock Installation
+      block:
+        - name: Rock - Installing Rock
           become: true
           apt:
             name: rock
           async: 10
           poll: 10
-        - name: Opal - Check if Rock Running
+        
+        # https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
+        # This Step is required for when ROCK_HOME is not defined
+        # It defaults to '/usr/share/'
+        - name: Rock - Set Rock Config
+          ansible.builtin.set_fact:
+            ROCK_CONFIG_PATH: "/usr/share/rock/conf/application.yml"
+        
+        # Step 1: Edit File (# administrator, can do all)
+        # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+        #security:
+        #  users:
+        #  # administrator, can do all
+        #  - id: administrator
+        #    secret: "{bcrypt}$2y$10$Ds/CB6jlY5a4/NU4.RvRI.9oZ16Bp6hx/Xcct1c2XFwYRdMbTHJVu"
+        #    roles: administrator
+
+        # kwoodson.yedit from Ansible Galaxy to configure .yamls
+        - name: Rock - Update Admin Username
+          yedit:
+            src: "{{ROCK_CONFIG_PATH}}"
+            key: security.users.id
+            value: "{{rockadmin}}"
+        - name: Rock - Update Admin Password
+          yedit:
+            src: "{{ROCK_CONFIG_PATH}}"
+            key: security.users.secret
+            value: "{{rockpass}}"
+        
+        # Step 3: Restart Rock Service
+        - name: Rock - Check if Rock Running
+          become: true
+          systemd:
+            name: rock
+            state: restarted
+
+        # Step 4: Check Rock Service Running
+        - name: Rock - Check if Rock Running
           become: true
           systemd:
             name: rock
             state: started
-        # TODO: ADD VARIABLES FOR ROCK NAME AND PASS 
-        # https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
 
 
     - name: Opal Python API Installation

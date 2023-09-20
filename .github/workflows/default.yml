@@ -17,9 +17,11 @@ jobs:
     - name: Prepare Ansible configuration for testing
       run: |
         make
-        echo 'Appending secret to inventory/hosts'
         echo -e "\n${{ secrets.TEST_HOST }} # Test Host supplied by secrets in GitHub Actions" >>inventory/hosts
-        # cat inventory/hosts
+
+    - name: Ansible Galaxy Dependency Installation
+      run: |
+        ansible-galaxy install -r requirements.yml
 
     - name: Setting up SSH key
       run: |
