@@ -1,5 +1,7 @@
 ---
 - hosts: DSservers
+  roles:
+    - role: kwoodson.yedit
   tasks:
     - name: Checking System Information
       debug:
