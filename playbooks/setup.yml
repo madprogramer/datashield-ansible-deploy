@@ -218,12 +218,14 @@
         #    secret: "{bcrypt}$2y$10$Ds/CB6jlY5a4/NU4.RvRI.9oZ16Bp6hx/Xcct1c2XFwYRdMbTHJVu"
         #    roles: administrator
 
+        # similarly manager and user are 1, 2
+
         # yedit from Ansible Galaxy to configure .yamls
         - name: Rock - Check Admin Username Readable
           become: true
           yedit:
             src: "/usr/share/rock/conf/application.yml"
-            key: security.users.id
+            key: security.users
             state: "list"
           register: yeditout
         - debug: var=yeditout
@@ -231,13 +233,13 @@
           become: true
           yedit:
             src: "/usr/share/rock/conf/application.yml"
-            key: security.users.id
+            key: security.users[0].id
             value: "{{rockadmin}}"
         - name: Rock - Update Admin Password
           become: true
           yedit:
             src: "{{ROCK_CONFIG_PATH}}"
-            key: security.users.secret
+            key: security.users[0].secret
             value: "{{rockpass}}"
         
         # Step 3: Restart Rock Service
