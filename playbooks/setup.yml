@@ -217,14 +217,14 @@
         #    secret: "{bcrypt}$2y$10$Ds/CB6jlY5a4/NU4.RvRI.9oZ16Bp6hx/Xcct1c2XFwYRdMbTHJVu"
         #    roles: administrator
 
-        # kwoodson.yedit from Ansible Galaxy to configure .yamls
+        # yedit from Ansible Galaxy to configure .yamls
         - name: Rock - Update Admin Username
-          kwoodson.yedit:
+          yedit:
             src: "{{ROCK_CONFIG_PATH}}"
             key: security.users.id
             value: "{{rockadmin}}"
         - name: Rock - Update Admin Password
-          kwoodson.yedit:
+          yedit:
             src: "{{ROCK_CONFIG_PATH}}"
             key: security.users.secret
             value: "{{rockpass}}"
