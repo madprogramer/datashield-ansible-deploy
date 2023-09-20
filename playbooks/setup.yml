@@ -207,7 +207,8 @@
         - name: Rock - Set Rock Config
           ansible.builtin.set_fact:
             ROCK_CONFIG_PATH: "/usr/share/rock/conf/application.yml"
-        
+          register: rock_set_fact_output
+        - debug: var=rock_set_fact_output
         # Step 1: Edit File (# administrator, can do all)
         # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
         #security:
@@ -218,12 +219,22 @@
         #    roles: administrator
 
         # yedit from Ansible Galaxy to configure .yamls
-        - name: Rock - Update Admin Username
+        - name: Rock - Check Admin Username Readable
+          become: true
           yedit:
-            src: "{{ROCK_CONFIG_PATH}}"
+            src: "/usr/share/rock/conf/application.yml"
+            key: security.users.id
+            state: "list"
+          register: yeditout
+        - debug: var=yeditout
+        - name: Rock - Update Admin Username
+          become: true
+          yedit:
+            src: "/usr/share/rock/conf/application.yml"
             key: security.users.id
             value: "{{rockadmin}}"
         - name: Rock - Update Admin Password
+          become: true
           yedit:
             src: "{{ROCK_CONFIG_PATH}}"
             key: security.users.secret
