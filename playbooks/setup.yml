@@ -217,12 +217,12 @@
 
         # kwoodson.yedit from Ansible Galaxy to configure .yamls
         - name: Rock - Update Admin Username
-          yedit:
+          kwoodson.yedit:
             src: "{{ROCK_CONFIG_PATH}}"
             key: security.users.id
             value: "{{rockadmin}}"
         - name: Rock - Update Admin Password
-          yedit:
+          kwoodson.yedit:
             src: "{{ROCK_CONFIG_PATH}}"
             key: security.users.secret
             value: "{{rockpass}}"
