@@ -198,8 +198,8 @@
           become: true
           apt:
             name: rock
-          async: 300
-          poll: 300
+          async: 900
+          poll: 900
         
         # https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
         # This Step is required for when ROCK_HOME is not defined
