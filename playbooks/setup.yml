@@ -192,7 +192,7 @@
           systemd:
             name: opal
             state: restarted
-    - name: Rock Installation
+    - name: Rock Installation and Configuration
       block:
         - name: Rock - Installing Rock
           become: true
@@ -256,6 +256,41 @@
             name: rock
             state: started
 
+        # Step 5: Update variables on opal-side
+        - name: Opal - Set Opal Config
+          ansible.builtin.set_fact:
+            OPAL_CONFIG_PATH: "/usr/share/opal/conf/opal-config.properties"
+          register: opal_set_fact_output
+        - debug: var=opal_set_fact_output
+        - name: Opal - Update Rock Admin Username
+          become: true
+          lineinfile:
+            path: "{{OPAL_CONFIG_PATH}}"
+            search_string: 'rock.default.administrator.username'
+            line: "rock.default.administrator.username={{rockadmin}}"
+            check_mode: true
+            state: present
+        - name: Opal - Update Rock Admin Password
+          lineinfile:
+            path: "{{OPAL_CONFIG_PATH}}"
+            search_string: 'rock.default.administrator.password'
+            line: "rock.default.administrator.password={{rockpass}}"
+            check_mode: true
+            state: present
+
+        # Step 6: Restart Opal
+        - name: Opal - Restarting Opal to Update Rock Information
+          become: true
+          systemd:
+            name: opal
+            state: restarted
+
+        # Step 7: Check opal running
+        - name: Opal - Check Opal running correctly
+          become: true
+          systemd:
+            name: opal
+            state: started
 
     - name: Opal Python API Installation
       block:
