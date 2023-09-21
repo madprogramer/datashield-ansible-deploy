@@ -268,14 +268,13 @@
             path: "{{OPAL_CONFIG_PATH}}"
             search_string: 'rock.default.administrator.username'
             line: "rock.default.administrator.username={{rockadmin}}"
-            check_mode: true
             state: present
         - name: Opal - Update Rock Admin Password
+          become: true
           lineinfile:
             path: "{{OPAL_CONFIG_PATH}}"
             search_string: 'rock.default.administrator.password'
             line: "rock.default.administrator.password={{rockpass}}"
-            check_mode: true
             state: present
 
         # Step 6: Restart Opal
