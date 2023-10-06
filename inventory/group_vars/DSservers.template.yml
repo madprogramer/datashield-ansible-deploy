@@ -1,6 +1,6 @@
 ---
-rockadmin: notadmin     # Rock Admin
-rockpass:  pwd          # Rock Password
+rockadmin: notadmin        # Rock Admin
+rockpass:  alongerpassword # Rock Password
 
 opalport: 8443       # Port to serve Opal on
 opaluser: opaluser   # MongoDB Username for Opal User
