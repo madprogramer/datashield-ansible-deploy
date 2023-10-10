@@ -1,4 +1,4 @@
-# DataSHIELD Ansible Deploy (dev branch)
+# DataSHIELD Ansible Deploy
 
 Ansible Playbook for Installing/Updating DataSHIELD ([Opal](https://www.obiba.org/pages/products/opal/)) servers.
 
