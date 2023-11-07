@@ -51,11 +51,15 @@
               apt:
                 name: mongodb
           when: "not 'mongodb' in ansible_facts.packages"
-
+          
         - name: MongoDB - Check if MongoDB Configured
           set_fact:
             MongoDB_Configured: (MongoDB_Moved_Before & MongoDB_Opal_User_Created ) | false
             # MongoDB_Configured: false
+        - name: MongoDB - Check facts
+          debug:
+            msg: MongoDB_Moved_Before: {{ MongoDB_Moved_Before }} and MongoDB_Opal_User_Created: {{ MongoDB_Opal_User_Created }}. Then is MongoDB_Configured: {{MongoDB_Configured}}.
+
   
         - name: Move MongoDB
           block: 
