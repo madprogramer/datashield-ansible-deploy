@@ -58,7 +58,7 @@
             # MongoDB_Configured: false
         - name: MongoDB - Check facts
           debug:
-            msg: MongoDB_Moved_Before: {{ MongoDB_Moved_Before }} and MongoDB_Opal_User_Created: {{ MongoDB_Opal_User_Created }}. Then is MongoDB_Configured: {{MongoDB_Configured}}.
+            msg: "MongoDB_Moved_Before: {{ MongoDB_Moved_Before }} and MongoDB_Opal_User_Created: {{ MongoDB_Opal_User_Created }}. Then is MongoDB_Configured: {{ MongoDB_Configured }}."
 
   
         - name: Move MongoDB
@@ -101,7 +101,7 @@
           when: "not MongoDB_Configured"
 
         - name: MongoDB - Create Opal User
-          shell: 'mongo admin --eval "db.createUser({user: \"{{opaluser}}\", pwd: \"{{opalpass}}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
+          shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
           register: mongodb_opal_user_output
           when: "not MongoDB_Configured"
 
