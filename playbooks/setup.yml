@@ -159,6 +159,7 @@
               - libjq-dev 
               - cmake 
               - cargo
+              - r-cran-jsonlite
 
     # - name: OpalR Installation
     #   block:
