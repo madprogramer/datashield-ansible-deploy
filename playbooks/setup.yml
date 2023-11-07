@@ -50,65 +50,71 @@
               become: true
               apt:
                 name: mongodb
+
+            - name: MongoDB - Create Opal User
+              shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
+              register: mongodb_opal_user_output
+              
           when: "not 'mongodb' in ansible_facts.packages"
           
-        - name: MongoDB - Check if MongoDB Configured
-          set_fact:
-            MongoDB_Configured: (MongoDB_Moved_Before & MongoDB_Opal_User_Created ) | false
-            # MongoDB_Configured: false
-        - name: MongoDB - Check facts
-          debug:
-            msg: "MongoDB_Moved_Before: {{ MongoDB_Moved_Before }} and MongoDB_Opal_User_Created: {{ MongoDB_Opal_User_Created }}. Then is MongoDB_Configured: {{ MongoDB_Configured }}."
+        #- name: MongoDB - Check if MongoDB Configured
+        #  set_fact:
+        #    #MongoDB_Configured: (MongoDB_Moved_Before & MongoDB_Opal_User_Created ) | false
+        #    # MongoDB_Configured: false
+        #- name: MongoDB - Check facts
+        #  debug:
+        #    msg: "MongoDB_Moved_Before: {{ MongoDB_Moved_Before }} and MongoDB_Opal_User_Created: {{ MongoDB_Opal_User_Created }}. Then is MongoDB_Configured: {{ MongoDB_Configured }}."
 
   
-        - name: Move MongoDB
-          block: 
-            - name: MongoDB - Stop
-              systemd:
-                name: mongodb
-                state: stopped
-            - name: MongoDB - Mount MongoDB
-              copy:
-                src: /var/lib/mongodb
-                dest: /mnt/mongodb
-                owner: mongodb
-                group: mongodb
-                remote_src: true
-                #mode: u=rw,g=r,o=r
-            - name: MongoDB - Remove Original MongoDB lib
-              file:
-                path: /var/lib/mongodb
-                state: absent
-            - name: MongoDB - Create Symbolic Link
-              become: true 
-              file:
-                src: "/mnt/mongodb"
-                dest: "/var/lib/mongodb"
-                owner: mongodb
-                group: mongodb
-                state: link
-                force: yes   
-              with_items:
-                - src: terraform
-                - src: tfenv
-            - name: MongoDB - Restart
-              systemd:
-                name: mongodb
-                state: restarted
-            - name: MongoDB - Mark as Moved
-              set_fact:
-                MongoDB_Moved_Before: true
-          when: "not MongoDB_Configured"
+        #- name: Move MongoDB
+        #  block: 
+        #    - name: MongoDB - Stop
+        #      systemd:
+        #        name: mongodb
+        #        state: stopped
+        #    - name: MongoDB - Mount MongoDB
+        #      copy:
+        #        src: /var/lib/mongodb
+        #        dest: /mnt/mongodb
+        #        owner: mongodb
+        #        group: mongodb
+        #        remote_src: true
+        #        #mode: u=rw,g=r,o=r
+        #    - name: MongoDB - Remove Original MongoDB lib
+        #      file:
+        #        path: /var/lib/mongodb
+        #        state: absent
+        #    - name: MongoDB - Create Symbolic Link
+        #      become: true 
+        #      file:
+        #        src: "/mnt/mongodb"
+        #        dest: "/var/lib/mongodb"
+        #        owner: mongodb
+        #        group: mongodb
+        #        state: link
+        #        force: yes   
+        #      with_items:
+        #        - src: terraform
+        #        - src: tfenv
+        #    - name: MongoDB - Restart
+        #      systemd:
+        #        name: mongodb
+        #        state: restarted
+        #    - name: MongoDB - Mark as Moved
+        #      set_fact:
+        #        MongoDB_Moved_Before: true
+        #  when: "not MongoDB_Configured"
 
-        - name: MongoDB - Create Opal User
-          shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
-          register: mongodb_opal_user_output
-          when: "not MongoDB_Configured"
+        #- name: MongoDB - Create Opal User
+        #  shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
+        #  register: mongodb_opal_user_output
+        #  when: "not MongoDB_Configured"
 
-        - name: MongoDB - Mark Opal User as Created
-          set_fact:
-            MongoDB_Opal_User_Created: true
-          when: "not MongoDB_Configured"
+        #- name: MongoDB - Mark Opal User as Created
+        #  set_fact:
+        #    MongoDB_Opal_User_Created: true
+        #  when: "not MongoDB_Configured"
+
 
     - name: R Installation
       block:
