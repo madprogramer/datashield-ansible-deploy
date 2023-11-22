@@ -52,7 +52,10 @@
                 name: mongodb
 
             - name: MongoDB - Create Opal User
-              shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
+              shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ],
+ mechanisms:[  
+  "SCRAM-SHA-1"
+ ]})"'
               register: mongodb_opal_user_output
               
           when: "not 'mongodb' in ansible_facts.packages"
