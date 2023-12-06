@@ -14,6 +14,8 @@ Ansible Playbook for Installing/Updating DataSHIELD ([Opal](https://www.obiba.or
 7. Run with `playbooks/setup.yml -i inventory -K` from inside `datashield-ansible-deploy`.
 8. Enter root password when prompted with `BECOME:` by requesting it from your IT admin.
 9. **IMPORTANT: Ensure that your Database is registered to Opal once installation completes. [See discussion here.](https://datashield.discourse.group/t/cannot-add-table-to-project-on-opal/309/4)**
+    * URL should be `mongodb://localhost:27017/opal_data?authSource=admin`
+    * user/pass should match secrets provided in inventory.
 
 ## Recommended Set-up
 
