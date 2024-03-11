@@ -55,14 +55,18 @@
                 name: mongodb
 
             - name: MongoDB - Create Opal User
-              shell: 'mongo admin --eval 
-"db.createUser({
-  user: \"{{ opaluser }}\",
-  pwd: \"{{ opalpass }}\",
-  roles: [ { role: \"root\", db: \"admin\" } ],
-  mechanisms:[  
-    "SCRAM-SHA-1"
-  ]})"'
+              shell: 'mongo admin --eval "db.createUser({
+              user: \"{{ opaluser }}\",
+              pwd: \"{{ opalpass }}\",
+              roles: [ { role: \"root\", db: \"admin\" } ]})"'
+
+              #user: \"{{ opaluser }}\",
+              #pwd: \"{{ opalpass }}\",
+              #roles: [ { role: \"root\", db: \"admin\" } ],
+              #mechanisms:[  
+              #  \"SCRAM-SHA-1\"
+              #]})"'
+
               register: mongodb_opal_user_output
               
           when: "not 'mongodb' in ansible_facts.packages"
@@ -202,17 +206,32 @@
           become: true
           apt:
             name: opal
-        - name: Opal - Configure Port
+        #- name: Opal - Configure Port
+        #  become: true
+        #  lineinfile:
+        #    path: /etc/opal/opal-config.properties
+        #    search_string: 'org.obiba.realm.url'
+        #    line: "org.obiba.realm.url=https://localhost:{{opalport}}"
+        - name: Opal - Configure Port (HTTP)
           become: true
           lineinfile:
             path: /etc/opal/opal-config.properties
-            search_string: 'org.obiba.realm.url'
-            line: "org.obiba.realm.url=https://localhost:{{opalport}}"
+            search_string: 'org.obiba.opal.http.port'
+            line: "org.obiba.opal.http.port={{opalHTTPport}}"
+
+        - name: Opal - Configure Port (HTTPS)
+          become: true
+          lineinfile:
+            path: /etc/opal/opal-config.properties
+            search_string: 'org.obiba.opal.https.port'
+            line: "org.obiba.opal.https.port={{opalHTTPSport}}"
+
         - name: Opal - Restarting Opal to Run on Custom Port
           become: true
           systemd:
             name: opal
             state: restarted
+
     - name: Rock Installation and Configuration
       block:
         - name: Rock - Installing Rock
@@ -224,10 +243,10 @@
         
         ## https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
         ## This Step is required for when ROCK_HOME is not defined
-        ## It defaults to '/usr/share/'
+        ## It defaults to '/etc/opal'
         #- name: Rock - Set Rock Config
         #  ansible.builtin.set_fact:
-        #    ROCK_CONFIG_PATH: "/usr/share/rock/conf/application.yml"
+        #    ROCK_CONFIG_PATH: "/etc/opal/rock/conf/application.yml"
         #  register: rock_set_fact_output
         #- debug: var=rock_set_fact_output
         ## Step 1: Edit File (# administrator, can do all)
@@ -245,7 +264,7 @@
         #- name: Rock - Check Admin Username Readable
         #  become: true
         #  yedit:
-        #    src: "/usr/share/rock/conf/application.yml"
+        #    src: "/etc/opal/rock/conf/application.yml"
         #    key: security.users
         #    state: "list"
         #  register: yeditout
@@ -253,7 +272,7 @@
         #- name: Rock - Update Admin Username
         #  become: true
         #  yedit:
-        #    src: "/usr/share/rock/conf/application.yml"
+        #    src: "/etc/opal/rock/conf/application.yml"
         #    key: security.users[0].id
         #    value: "{{rockadmin}}"
         #- name: Rock - Update Admin Password
@@ -280,7 +299,7 @@
         ## Step 5: Update variables on opal-side
         #- name: Opal - Set Opal Config
         #  ansible.builtin.set_fact:
-        #    OPAL_CONFIG_PATH: "/usr/share/opal/conf/opal-config.properties"
+        #    OPAL_CONFIG_PATH: "/etc/opal/opal/conf/opal-config.properties"
         #  register: opal_set_fact_output
         #- debug: var=opal_set_fact_output
         #- name: Opal - Update Rock Admin Username
