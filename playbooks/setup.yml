@@ -2,6 +2,9 @@
 - hosts: DSservers
   roles:
     - role: kwoodson.yedit
+    #- role: gantsign.java
+    #  java_version: '8.0.402+6' # Java 8
+
   tasks:
     - name: Checking System Information
       debug:
@@ -52,10 +55,14 @@
                 name: mongodb
 
             - name: MongoDB - Create Opal User
-              shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ],
- mechanisms:[  
-  "SCRAM-SHA-1"
- ]})"'
+              shell: 'mongo admin --eval 
+"db.createUser({
+  user: \"{{ opaluser }}\",
+  pwd: \"{{ opalpass }}\",
+  roles: [ { role: \"root\", db: \"admin\" } ],
+  mechanisms:[  
+    "SCRAM-SHA-1"
+  ]})"'
               register: mongodb_opal_user_output
               
           when: "not 'mongodb' in ansible_facts.packages"
