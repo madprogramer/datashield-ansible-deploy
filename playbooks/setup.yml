@@ -206,31 +206,60 @@
           become: true
           apt:
             name: opal
-        #- name: Opal - Configure Port
-        #  become: true
-        #  lineinfile:
-        #    path: /etc/opal/opal-config.properties
-        #    search_string: 'org.obiba.realm.url'
-        #    line: "org.obiba.realm.url=https://localhost:{{opalport}}"
-        - name: Opal - Configure Port (HTTP)
-          become: true
-          lineinfile:
-            path: /etc/opal/opal-config.properties
-            search_string: 'org.obiba.opal.http.port'
-            line: "org.obiba.opal.http.port={{opalHTTPport}}"
 
-        - name: Opal - Configure Port (HTTPS)
-          become: true
-          lineinfile:
-            path: /etc/opal/opal-config.properties
-            search_string: 'org.obiba.opal.https.port'
-            line: "org.obiba.opal.https.port={{opalHTTPSport}}"
+    - name: Opal Configuration
+      block:
+      - name: Run shiro-hasher
+        become: true
+        expect:
+          command: "./shiro-hasher -p"
+          responses:
+            "(.*)Password(.*)": "{{opal_administrator_password}}"
+            "(.*)confirm(.*)": "{{opal_administrator_password}}"
+            #"Password to hash:": "password\r"
+            #"Password to hash (confirm):": "password"
+          chdir: "/usr/share/opal/tools/"
+          echo: true
+        register: shiro_hasher_result
 
-        - name: Opal - Restarting Opal to Run on Custom Port
-          become: true
-          systemd:
-            name: opal
-            state: restarted
+      #{{opal_administrator_password}}
+ 
+      - name: Display shiro-hasher output
+        debug:
+          var: shiro_hasher_result.stdout_lines[2]
+
+      - name: Opal - Update Admin Password 
+        become: true
+        lineinfile:
+          path: /etc/opal/shiro.ini
+          search_string: 'administrator ='
+          line: "administrator = {{shiro_hasher_result.stdout_lines[2]}},admin"
+
+      #- name: Opal - Configure Port
+      #  become: true
+      #  lineinfile:
+      #    path: /etc/opal/opal-config.properties
+      #    search_string: 'org.obiba.realm.url'
+      #    line: "org.obiba.realm.url=https://localhost:{{opalport}}"
+      - name: Opal - Configure Port (HTTP)
+        become: true
+        lineinfile:
+          path: /etc/opal/opal-config.properties
+          search_string: 'org.obiba.opal.http.port'
+          line: "org.obiba.opal.http.port={{opalHTTPport}}"
+
+      - name: Opal - Configure Port (HTTPS)
+        become: true
+        lineinfile:
+          path: /etc/opal/opal-config.properties
+          search_string: 'org.obiba.opal.https.port'
+          line: "org.obiba.opal.https.port={{opalHTTPSport}}"
+
+      - name: Opal - Restarting Opal to Run on Custom Port
+        become: true
+        systemd:
+          name: opal
+          state: restarted
 
     - name: Rock Installation and Configuration
       block:

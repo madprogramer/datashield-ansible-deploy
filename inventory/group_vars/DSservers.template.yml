@@ -1,7 +1,12 @@
 ---
 rockadmin: administrator        # Rock Admin
-rockpass:  password # Rock Password
+rockpass:  password             # Rock Password
 
-opalport: 8443       # Port to serve Opal on
+#opalport: 8443       # Port to serve Opal on
+opalHTTPport: 8080        # Port to serve Opal on
+opalHTTPSport: 8443       # Port to serve Opal on
+
 opaluser: opaluser   # MongoDB Username for Opal User
 opalpass: opalpass   # MongoDB Password for Opal User
+
+opal_administrator_password: password
