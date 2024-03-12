@@ -1,15 +1,25 @@
 ---
 - hosts: DSservers
-  
+
+  # Pre-Roles Tasks
+  pre_tasks:
+
+    - name: apt - Update cache
+      become: true
+      apt:
+        update_cache: yes
+    - name: Install unzip package
+      become: true
+      apt:
+        name: zip
+
+  # Roles
   roles:
     - role: kwoodson.yedit
+    - role: gantsign.java
+      java_version: '8.0.402+6' # Java 8
 
-  #tasks:
-
-  #roles:
-    #- role: gantsign.java
-    #  java_version: '8.0.402+6' # Java 8
-
+  # Tasks
   tasks:
     - name: Checking System Information
       debug:
@@ -220,24 +230,19 @@
           command: "./shiro-hasher -p"
           responses:
             "(.*)Password(.*)": "{{ opal_administrator_password }}"
-            "(.*)confirm(.*)": "{{ opal_administrator_password }}"
-            #"Password to hash:": "password\r"
-            #"Password to hash (confirm):": "password"
           chdir: "/usr/share/opal/tools/"
           echo: true
         register: shiro_hasher_result
 
-      # Consider switching to pno
-
-      #{{opal_administrator_password}}
+      # Debugging  
  
-      - name: Display shiro-hasher output
-        debug:
-          var: shiro_hasher_result.stdout_lines[2]
+      #- name: Display shiro-hasher output
+      #  debug:
+      #    var: shiro_hasher_result.stdout_lines[2]
 
-      - name: Display intended password
-        debug:
-          var: opal_administrator_password
+      #- name: Display intended password
+      #  debug:
+      #    var: opal_administrator_password
 
       - name: Opal - Update Admin Password 
         become: true
