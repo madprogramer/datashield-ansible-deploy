@@ -1,7 +1,12 @@
 ---
 - hosts: DSservers
+  
   roles:
     - role: kwoodson.yedit
+
+  #tasks:
+
+  #roles:
     #- role: gantsign.java
     #  java_version: '8.0.402+6' # Java 8
 
@@ -214,19 +219,25 @@
         expect:
           command: "./shiro-hasher -p"
           responses:
-            "(.*)Password(.*)": "{{opal_administrator_password}}"
-            "(.*)confirm(.*)": "{{opal_administrator_password}}"
+            "(.*)Password(.*)": "{{ opal_administrator_password }}"
+            "(.*)confirm(.*)": "{{ opal_administrator_password }}"
             #"Password to hash:": "password\r"
             #"Password to hash (confirm):": "password"
           chdir: "/usr/share/opal/tools/"
           echo: true
         register: shiro_hasher_result
 
+      # Consider switching to pno
+
       #{{opal_administrator_password}}
  
       - name: Display shiro-hasher output
         debug:
           var: shiro_hasher_result.stdout_lines[2]
+
+      - name: Display intended password
+        debug:
+          var: opal_administrator_password
 
       - name: Opal - Update Admin Password 
         become: true
@@ -255,7 +266,7 @@
           search_string: 'org.obiba.opal.https.port'
           line: "org.obiba.opal.https.port={{opalHTTPSport}}"
 
-      - name: Opal - Restarting Opal to Run on Custom Port
+      - name: Opal - Restarting Opal to Update Configuration
         become: true
         systemd:
           name: opal
