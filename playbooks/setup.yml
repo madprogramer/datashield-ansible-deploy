@@ -255,7 +255,7 @@
         - name: R Packages - dsBase Installation
           shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
           become: true
-        - name: R Packages - dsBase Installation, this might take a while
+        - name: R Packages - Helper Packages Installation, this might take a while
           shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
           become: true
         - name: R Packages - OpalR Installation, this might take a while
