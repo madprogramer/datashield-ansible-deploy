@@ -234,19 +234,51 @@
             dest: /usr/local/bin/Rscript
             state: link
 
-    - name: OpalR Installation
+    - name: R Packages Installation
       block:
-        - name: OpalR - Installation, this might take a while
-          shell: Rscript -e "install.packages(c('resourcer', 'opalr', 'tidyverse', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cloud.r-project.org', 'https://cran.obiba.org'), dependencies=TRUE, lib='/usr/local/lib/R/site-library')"
-        - name: OpalR - Also Installing Rserve
-          shell: Rscript -e "install.packages('Rserve', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
-        - name: OpalR - Also Installing lme4
-          shell: Rscript -e "install.packages('lme4', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
-        - name: OpalR - Also Installing dplyr
-          shell: Rscript -e "install.packages('dplyr', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
-        - name: OpalR - Also Installing reshape2
-          shell: Rscript -e "install.packages('reshape2', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+         
+        - name: R Packages - Install XML
+          become: true
+          apt:
+            name: libxml2-dev
+        - name: R Packages - Install OpenSSL
+          become: true
+          apt:
+            name: libcurl4-openssl-dev
 
+        - name: R Packages - Install Pacman
+          shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+          become: true
+        - name: R Packages - pacman Installation
+          shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+          become: true
+        - name: R Packages - dsBase Installation
+          shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
+          become: true
+        - name: R Packages - dsBase Installation, this might take a while
+          shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+          become: true
+        - name: R Packages - OpalR Installation, this might take a while
+          shell: Rscript -e "pacman::p_install_gh('obiba/opalr', dependencies=TRUE)"
+          become: true
+        - name: R Packages - dsSwissKnife Installation, this might take a while
+          shell: Rscript -e "pacman::p_install_gh('sib-swiss/dsSwissKnife', dependencies=TRUE)"
+          become: true
+        #- name: OpalR - Installation, this might take a while
+        #  shell: Rscript -e "install.packages(c('resourcer', 'opalr', 'tidyverse', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cloud.r-project.org', 'https://cran.obiba.org'), dependencies=TRUE)"
+        #  become: true
+        # - name: OpalR - Also Installing Rserve
+        #   shell: Rscript -e "install.packages('Rserve', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+        #   become: true
+        # - name: OpalR - Also Installing lme4
+        #   shell: Rscript -e "install.packages('lme4', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+        #   become: true
+        # - name: OpalR - Also Installing dplyr
+        #   shell: Rscript -e "install.packages('dplyr', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+        #   become: true
+        # - name: OpalR - Also Installing reshape2
+        #   shell: Rscript -e "install.packages('reshape2', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+        #   become: true
     - name: Opal Installation
       block:
         - name: Opal - Get Opal Key
