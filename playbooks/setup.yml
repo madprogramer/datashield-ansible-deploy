@@ -15,20 +15,17 @@
 
   # Roles
   roles:
+
+    # From Galaxy
     - role: kwoodson.yedit
     - role: gantsign.java
-      java_version: '8.0.402+6' # Java 8
+      java_version: '11.0.22' # Java 11
+
+    # Custom
+    - role: datashield-getinfo
 
   # Tasks
   tasks:
-    - name: Checking System Information
-      debug:
-        msg: "The hostname is {{ ansible_distribution }}, version: {{ ansible_facts['lsb']['release'] }}."
-
-    - name: Gathering Package Facts
-      package_facts:
-        manager: auto
-
     # Install Gdebi
     - name: Install gdebi-core
       apt:
@@ -246,24 +243,23 @@
           apt:
             name: libcurl4-openssl-dev
 
-        - name: R Packages - Install Pacman
-          shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
-          become: true
-        - name: R Packages - pacman Installation
-          shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
-          become: true
-        - name: R Packages - dsBase Installation
-          shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
-          become: true
-        - name: R Packages - Helper Packages Installation, this might take a while
-          shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
-          become: true
-        - name: R Packages - OpalR Installation, this might take a while
-          shell: Rscript -e "pacman::p_install_gh('obiba/opalr', dependencies=TRUE)"
-          become: true
-        - name: R Packages - dsSwissKnife Installation, this might take a while
-          shell: Rscript -e "pacman::p_install_gh('sib-swiss/dsSwissKnife', dependencies=TRUE)"
-          become: true
+        # - name: R Packages - Install Pacman
+        #   shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+        #   become: true
+        # - name: R Packages - dsBase Installation
+        #   shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
+        #   become: true
+        # - name: R Packages - Helper Packages Installation, this might take a while
+        #   shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+        #   become: true
+        # - name: R Packages - OpalR Installation, this might take a while
+        #   shell: Rscript -e "pacman::p_install_gh('obiba/opalr', dependencies=TRUE)"
+        #   become: true
+        # - name: R Packages - dsSwissKnife Installation, this might take a while
+        #   shell: Rscript -e "pacman::p_install_gh('sib-swiss/dsSwissKnife', dependencies=TRUE)"
+        #   become: true
+
+        # LEGACY  
         #- name: OpalR - Installation, this might take a while
         #  shell: Rscript -e "install.packages(c('resourcer', 'opalr', 'tidyverse', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cloud.r-project.org', 'https://cran.obiba.org'), dependencies=TRUE)"
         #  become: true
@@ -300,52 +296,60 @@
 
     - name: Opal Configuration
       block:
-      - name: Run shiro-hasher
-        become: true
-        expect:
-          command: "./shiro-hasher -p"
-          responses:
-            "(.*)Password(.*)": "{{ opal_administrator_password }}"
-          chdir: "/usr/share/opal/tools/"
-          echo: true
-        register: shiro_hasher_result
 
-      # Debugging  
+      - name: Set Java Version
+        become:
+        lineinfile:
+          path: /etc/default/opal
+          search_string: 'JAVA='
+          line: "JAVA=/opt/java/jdk-11.0.22+7/bin/java"
+
+      # - name: Run shiro-hasher
+      #   become: true
+      #   expect:
+      #     command: "./shiro-hasher -p"
+      #     responses:
+      #       "(.*)Password(.*)": "{{ opal_administrator_password }}"
+      #     chdir: "/usr/share/opal/tools/"
+      #     echo: true
+      #   register: shiro_hasher_result
+
+      # # Debugging  
  
-      - name: Display shiro-hasher output
-        debug:
-          var: shiro_hasher_result.stdout_lines[2]
+      # - name: Display shiro-hasher output
+      #   debug:
+      #     var: shiro_hasher_result.stdout_lines[2]
 
-      - name: Display intended password
-        debug:
-          var: opal_administrator_password
+      # - name: Display intended password
+      #   debug:
+      #     var: opal_administrator_password
 
-      - name: Opal - Update Admin Password 
-        become: true
-        lineinfile:
-          path: /etc/opal/shiro.ini
-          search_string: 'administrator ='
-          line: "administrator = {{shiro_hasher_result.stdout_lines[2]}},admin"
+      # - name: Opal - Update Admin Password 
+      #   become: true
+      #   lineinfile:
+      #     path: /etc/opal/shiro.ini
+      #     search_string: 'administrator ='
+      #     line: "administrator = {{shiro_hasher_result.stdout_lines[2]}},admin"
 
-      #- name: Opal - Configure Port
-      #  become: true
-      #  lineinfile:
-      #    path: /etc/opal/opal-config.properties
-      #    search_string: 'org.obiba.realm.url'
-      #    line: "org.obiba.realm.url=https://localhost:{{opalport}}"
-      - name: Opal - Configure Port (HTTP)
-        become: true
-        lineinfile:
-          path: /etc/opal/opal-config.properties
-          search_string: 'org.obiba.opal.http.port'
-          line: "org.obiba.opal.http.port={{opalHTTPport}}"
+      # #- name: Opal - Configure Port
+      # #  become: true
+      # #  lineinfile:
+      # #    path: /etc/opal/opal-config.properties
+      # #    search_string: 'org.obiba.realm.url'
+      # #    line: "org.obiba.realm.url=https://localhost:{{opalport}}"
+      # - name: Opal - Configure Port (HTTP)
+      #   become: true
+      #   lineinfile:
+      #     path: /etc/opal/opal-config.properties
+      #     search_string: 'org.obiba.opal.http.port'
+      #     line: "org.obiba.opal.http.port={{opalHTTPport}}"
 
-      - name: Opal - Configure Port (HTTPS)
-        become: true
-        lineinfile:
-          path: /etc/opal/opal-config.properties
-          search_string: 'org.obiba.opal.https.port'
-          line: "org.obiba.opal.https.port={{opalHTTPSport}}"
+      # - name: Opal - Configure Port (HTTPS)
+      #   become: true
+      #   lineinfile:
+      #     path: /etc/opal/opal-config.properties
+      #     search_string: 'org.obiba.opal.https.port'
+      #     line: "org.obiba.opal.https.port={{opalHTTPSport}}"
 
       - name: Opal - Restarting Opal to Update Configuration
         become: true
@@ -353,14 +357,14 @@
           name: opal
           state: restarted
 
-    - name: Rock Installation and Configuration
-      block:
-        - name: Rock - Installing Rock
-          become: true
-          apt:
-            name: rock
-          async: 900
-          poll: 900
+    # - name: Rock Installation and Configuration
+    #  block:
+    #    - name: Rock - Installing Rock
+    #      become: true
+    #      apt:
+    #        name: rock
+    #      async: 900
+    #      poll: 900
         
         ## https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
         ## This Step is required for when ROCK_HOME is not defined

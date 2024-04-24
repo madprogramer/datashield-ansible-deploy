@@ -1,0 +1,9 @@
+---
+# tasks file for getinfo
+- name: Checking System Information
+  debug:
+    msg: "The hostname is {{ ansible_distribution }}, version: {{ ansible_facts['lsb']['release'] }}."
+
+- name: Gathering Package Facts
+  package_facts:
+    manager: auto
