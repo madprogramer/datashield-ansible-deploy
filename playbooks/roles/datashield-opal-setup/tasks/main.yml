@@ -81,3 +81,8 @@
     systemd:
       name: opal
       state: restarted
+  - name: Opal - Check Opal running correctly
+    become: true
+    systemd:
+      name: opal
+      state: started
