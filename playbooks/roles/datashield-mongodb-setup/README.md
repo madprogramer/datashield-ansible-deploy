@@ -1,7 +1,7 @@
-Role Name
+DataSHIELD (Set-up MongoDB)
 =========
 
-DataSHIELD (Set-up MongoDB)
+This role installs MongoDB and also readies it to interface with DataSHIELD.
 
 Requirements
 ------------

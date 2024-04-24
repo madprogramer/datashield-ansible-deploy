@@ -1,7 +1,8 @@
-Role Name
+DataSHIELD (R Set-up)
 =========
 
-DataSHIELD (R Set-up)
+This role installs [R](https://www.r-project.org/).
+Additionally, tasks to install DataSHIELD packages are also included here.
 
 Requirements
 ------------

@@ -1,7 +1,7 @@
-Role Name
+DataSHIELD (Get Info)
 =========
 
-DataSHIELD (Get Info)
+Early Tasks for setting up for a DataSHIELD installation.
 
 Requirements
 ------------

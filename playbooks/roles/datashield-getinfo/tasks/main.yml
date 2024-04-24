@@ -8,6 +8,15 @@
   package_facts:
     manager: auto
 
+- name: apt - Update cache
+  become: true
+  apt:
+    update_cache: yes
+- name: Install unzip package
+  become: true
+  apt:
+    name: zip
+
 # Install Gdebi
 - name: Install gdebi-core
   become: true
