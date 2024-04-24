@@ -1,0 +1,132 @@
+---
+# tasks file for datashield-R-setup
+
+- name: R Installation
+  block:
+
+    # TODO: CHECK IF R INSTALLED AND SKIP IF INSTALLED (?)
+    
+    - name: Create R image dir
+      become: true
+      ansible.builtin.file:
+        path: R-images
+        state: directory
+    #- name: Export R_VERSION_INSTALLED_BY_ANSIBLE variable
+    #  environment:
+    #    R_VERSION_INSTALLED_BY_ANSIBLE: "4.3.3"
+    #  shell: echo "R_VERSION_INSTALLED_BY_ANSIBLE is $R_VERSION_INSTALLED_BY_ANSIBLE. TODO! Parameterise"
+    - name: R - Get R Image
+      become: true
+      shell: curl -o R-images/r-{{ R_VERSION_INSTALLED_BY_ANSIBLE }}_1_amd64.deb https://cdn.rstudio.com/r/ubuntu-2004/pkgs/r-{{ R_VERSION_INSTALLED_BY_ANSIBLE }}_1_amd64.deb
+      register: R_curl_output
+    - name: R - Gdebi R Image
+      become: true
+      shell: gdebi --n R-images/r-{{ R_VERSION_INSTALLED_BY_ANSIBLE }}_1_amd64.deb
+      register: R_gdebi_output
+    - name: R - Test for Errors
+      become: true
+      shell: /opt/R/{{ R_VERSION_INSTALLED_BY_ANSIBLE }}/bin/R --version
+      register: R_version_output
+    - name: Create symbolic link for R
+      file:
+        src: /opt/R/{{ R_VERSION_INSTALLED_BY_ANSIBLE }}/bin/R
+        dest: /usr/local/bin/R
+        state: link
+    - name: Create symbolic link for Rscript
+      file:
+        src: /opt/R/{{ R_VERSION_INSTALLED_BY_ANSIBLE }}/bin/Rscript
+        dest: /usr/local/bin/Rscript
+        state: link
+
+- name: R Packages Installation
+  block:
+     
+    - name: R Packages - Install XML
+      become: true
+      apt:
+        name: libxml2-dev
+    - name: R Packages - Install OpenSSL
+      become: true
+      apt:
+        name: libcurl4-openssl-dev
+
+    # - name: R Packages - Install Pacman
+    #   shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+    #   become: true
+    # - name: R Packages - dsBase Installation
+    #   shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
+    #   become: true
+    # - name: R Packages - Helper Packages Installation, this might take a while
+    #   shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+    #   become: true
+    # - name: R Packages - OpalR Installation, this might take a while
+    #   shell: Rscript -e "pacman::p_install_gh('obiba/opalr', dependencies=TRUE)"
+    #   become: true
+    # - name: R Packages - dsSwissKnife Installation, this might take a while
+    #   shell: Rscript -e "pacman::p_install_gh('sib-swiss/dsSwissKnife', dependencies=TRUE)"
+    #   become: true
+
+    # LEGACY  
+    #- name: OpalR - Installation, this might take a while
+    #  shell: Rscript -e "install.packages(c('resourcer', 'opalr', 'tidyverse', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cloud.r-project.org', 'https://cran.obiba.org'), dependencies=TRUE)"
+    #  become: true
+    # - name: OpalR - Also Installing Rserve
+    #   shell: Rscript -e "install.packages('Rserve', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+    # - name: OpalR - Also Installing lme4
+    #   shell: Rscript -e "install.packages('lme4', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+    # - name: OpalR - Also Installing dplyr
+    #   shell: Rscript -e "install.packages('dplyr', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+    # - name: OpalR - Also Installing reshape2
+    #   shell: Rscript -e "install.packages('reshape2', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+
+
+## EVEN MORE LEGACY
+
+# - name: R Installation (Legacy)
+#   block:
+#     - name: R - Add apt Key
+#       become: true
+#       apt_key:
+#         keyserver: keyserver.ubuntu.com
+#         id: E298A3A825C0D65DFD57CBB651716619E084DAB9
+
+#     # - name: R - Add apt Key
+#     #   become: true
+#     #   shell: "add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/'"
+
+#     # - name: R - Update apt packages
+#     #   become: true
+#     #   apt:
+#     #     update_cache: yes
+
+    # - name: R - Install Base R
+    #   become: true
+    #   apt:
+    #     pkg:
+    #       - r-base 
+    #       - r-base-core 
+    #       - r-base-dev
+    # - name: R - Install R Packages
+    #   become: true
+    #   apt:
+    #     pkg:
+    #       - libpq-dev 
+    #       - libmariadbclient-dev 
+    #       - libssh-dev 
+    #       - libssl-dev 
+    #       - libsasl2-dev 
+    #       - libxml2-dev 
+    #       - libcurl4-openssl-dev 
+    #       - libfontconfig1-dev
+    #       - libmagick++-dev 
+    #       - freeglut3-dev 
+    #       - libharfbuzz-dev 
+    #       - libfribidi-dev  
+    #       - libjq-dev 
+    #       - cmake 
+    #       - cargo
+    #       - r-cran-jsonlite
