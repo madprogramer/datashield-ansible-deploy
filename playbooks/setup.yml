@@ -2,220 +2,26 @@
 - hosts: DSservers
 
   # Pre-Roles Tasks
-  pre_tasks:
-
-    - name: apt - Update cache
-      become: true
-      apt:
-        update_cache: yes
-    - name: Install unzip package
-      become: true
-      apt:
-        name: zip
+  # pre_tasks:
 
   # Roles
   roles:
 
-    # From Galaxy
-    - role: kwoodson.yedit
-    - role: gantsign.java
-      java_version: '11.0.22' # Java 11
-
     # Custom
     - role: datashield-getinfo
-    - role: datashield-mongodb-setup
-    - role: datashield-R-setup
+
+    # From Galaxy
+    #- role: gantsign.java
+      #java_version: '8.0.402+6' #Java 8
+      #java_version: '11.0.22' # Java 11
+    - role: kwoodson.yedit
+   
+    # Custom
+    #- role: datashield-mongodb-setup
+    #- role: datashield-R-setup
+    - role: datashield-opal-setup
+    #- role: datashield-rock-setup
+    - role: datashield-opal-python-api-setup
 
   # Tasks
-  tasks:
-    - name: Opal Installation
-      block:
-        - name: Opal - Get Opal Key
-          become: true
-          shell: curl -fsSL https://www.obiba.org/assets/obiba-pub.pem | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/obiba.gpg
-          register: opal_obiba_output
-        - name: Opal - Tee Opal
-          become: true
-          shell: echo 'deb https://obiba.jfrog.io/artifactory/debian-local all main' | sudo tee /etc/apt/sources.list.d/obiba.list
-          register: opal_tee_output
-        - name: Opal - Update apt packages
-          become: true
-          apt:
-            update_cache: yes
-        - name: Opal - Installing Opal
-          become: true
-          apt:
-            name: opal
-
-    - name: Opal Configuration
-      block:
-
-      - name: Set Java Version
-        become:
-        lineinfile:
-          path: /etc/default/opal
-          search_string: 'JAVA='
-          line: "JAVA=/opt/java/jdk-11.0.22+7/bin/java"
-
-      # - name: Run shiro-hasher
-      #   become: true
-      #   expect:
-      #     command: "./shiro-hasher -p"
-      #     responses:
-      #       "(.*)Password(.*)": "{{ opal_administrator_password }}"
-      #     chdir: "/usr/share/opal/tools/"
-      #     echo: true
-      #   register: shiro_hasher_result
-
-      # # Debugging  
- 
-      # - name: Display shiro-hasher output
-      #   debug:
-      #     var: shiro_hasher_result.stdout_lines[2]
-
-      # - name: Display intended password
-      #   debug:
-      #     var: opal_administrator_password
-
-      # - name: Opal - Update Admin Password 
-      #   become: true
-      #   lineinfile:
-      #     path: /etc/opal/shiro.ini
-      #     search_string: 'administrator ='
-      #     line: "administrator = {{shiro_hasher_result.stdout_lines[2]}},admin"
-
-      # #- name: Opal - Configure Port
-      # #  become: true
-      # #  lineinfile:
-      # #    path: /etc/opal/opal-config.properties
-      # #    search_string: 'org.obiba.realm.url'
-      # #    line: "org.obiba.realm.url=https://localhost:{{opalport}}"
-      # - name: Opal - Configure Port (HTTP)
-      #   become: true
-      #   lineinfile:
-      #     path: /etc/opal/opal-config.properties
-      #     search_string: 'org.obiba.opal.http.port'
-      #     line: "org.obiba.opal.http.port={{opalHTTPport}}"
-
-      # - name: Opal - Configure Port (HTTPS)
-      #   become: true
-      #   lineinfile:
-      #     path: /etc/opal/opal-config.properties
-      #     search_string: 'org.obiba.opal.https.port'
-      #     line: "org.obiba.opal.https.port={{opalHTTPSport}}"
-
-      - name: Opal - Restarting Opal to Update Configuration
-        become: true
-        systemd:
-          name: opal
-          state: restarted
-
-    # - name: Rock Installation and Configuration
-    #  block:
-    #    - name: Rock - Installing Rock
-    #      become: true
-    #      apt:
-    #        name: rock
-    #      async: 900
-    #      poll: 900
-        
-        ## https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
-        ## This Step is required for when ROCK_HOME is not defined
-        ## It defaults to '/etc/opal'
-        #- name: Rock - Set Rock Config
-        #  ansible.builtin.set_fact:
-        #    ROCK_CONFIG_PATH: "/etc/opal/rock/conf/application.yml"
-        #  register: rock_set_fact_output
-        #- debug: var=rock_set_fact_output
-        ## Step 1: Edit File (# administrator, can do all)
-        ## https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
-        ##security:
-        ##  users:
-        ##  # administrator, can do all
-        ##  - id: administrator
-        ##    secret: "{bcrypt}$2y$10$Ds/CB6jlY5a4/NU4.RvRI.9oZ16Bp6hx/Xcct1c2XFwYRdMbTHJVu"
-        ##    roles: administrator
-
-        ## similarly manager and user are 1, 2
-
-        ## yedit from Ansible Galaxy to configure .yamls
-        #- name: Rock - Check Admin Username Readable
-        #  become: true
-        #  yedit:
-        #    src: "/etc/opal/rock/conf/application.yml"
-        #    key: security.users
-        #    state: "list"
-        #  register: yeditout
-        #- debug: var=yeditout
-        #- name: Rock - Update Admin Username
-        #  become: true
-        #  yedit:
-        #    src: "/etc/opal/rock/conf/application.yml"
-        #    key: security.users[0].id
-        #    value: "{{rockadmin}}"
-        #- name: Rock - Update Admin Password
-        #  become: true
-        #  yedit:
-        #    src: "{{ROCK_CONFIG_PATH}}"
-        #    key: security.users[0].secret
-        #    value: "{{rockpass}}"
-        
-        ## Step 3: Restart Rock Service
-        #- name: Rock - Check if Rock Running
-        #  become: true
-        #  systemd:
-        #    name: rock
-        #    state: restarted
-
-        ## Step 4: Check Rock Service Running
-        #- name: Rock - Check if Rock Running
-        #  become: true
-        #  systemd:
-        #    name: rock
-        #    state: started
-
-        ## Step 5: Update variables on opal-side
-        #- name: Opal - Set Opal Config
-        #  ansible.builtin.set_fact:
-        #    OPAL_CONFIG_PATH: "/etc/opal/opal/conf/opal-config.properties"
-        #  register: opal_set_fact_output
-        #- debug: var=opal_set_fact_output
-        #- name: Opal - Update Rock Admin Username
-        #  become: true
-        #  lineinfile:
-        #    path: "{{OPAL_CONFIG_PATH}}"
-        #    search_string: 'rock.default.administrator.username'
-        #    line: "rock.default.administrator.username={{rockadmin}}"
-        #    state: present
-        #- name: Opal - Update Rock Admin Password
-        #  become: true
-        #  lineinfile:
-        #    path: "{{OPAL_CONFIG_PATH}}"
-        #    search_string: 'rock.default.administrator.password'
-        #    line: "rock.default.administrator.password={{rockpass}}"
-        #    state: present
-
-        ## Step 6: Restart Opal
-        #- name: Opal - Restarting Opal to Update Rock Information
-        #  become: true
-        #  systemd:
-        #    name: opal
-        #    state: restarted
-
-        ## Step 7: Check opal running
-        #- name: Opal - Check Opal running correctly
-        #  become: true
-        #  systemd:
-        #    name: opal
-        #    state: started
-
-    - name: Opal Python API Installation
-      block:
-        - name: PIP Installation
-          become: true
-          apt:
-            name: python3-pip
-        - name: Opal Python API Installation
-          become: true
-          shell: pip install obiba-opal
-          register: obiba_opal_output
+  # tasks:
