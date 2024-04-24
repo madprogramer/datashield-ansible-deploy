@@ -1,0 +1,12 @@
+---
+# tasks file for datashield-opal-python-api-setup
+- name: Opal Python API Installation
+  block:
+    - name: PIP Installation
+      become: true
+      apt:
+        name: python3-pip
+    - name: Opal Python API Installation
+      become: true
+      shell: pip install obiba-opal
+      register: obiba_opal_output
