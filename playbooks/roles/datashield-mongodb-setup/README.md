@@ -1,7 +1,7 @@
 Role Name
 =========
 
-DataSHIELD (Get Info)
+DataSHIELD (Set-up MongoDB)
 
 Requirements
 ------------

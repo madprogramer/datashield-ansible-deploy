@@ -7,3 +7,10 @@
 - name: Gathering Package Facts
   package_facts:
     manager: auto
+
+# Install Gdebi
+- name: Install gdebi-core
+  become: true
+  apt:
+    name: gdebi-core
+    state: present
