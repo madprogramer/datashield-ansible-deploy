@@ -1,0 +1,101 @@
+---
+# tasks file for datashield-rock-setup
+- name: Rock Installation and Configuration
+  block:
+    - name: Rock - Installing Rock
+      become: true
+      apt:
+        name: rock
+      async: 900
+      poll: 900
+    
+    # https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
+    # This Step is required for when ROCK_HOME is not defined
+    # It defaults to '/etc/opal'
+    - name: Rock - Set Rock Config
+      ansible.builtin.set_fact:
+        ROCK_CONFIG_PATH: "/etc/opal/rock/conf/application.yml"
+      register: rock_set_fact_output
+    - debug: var=rock_set_fact_output
+
+    # Step 1: Edit File (# administrator, can do all)
+    # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
+    #security:
+    #  users:
+    #  # administrator, can do all
+    #  - id: administrator
+    #    secret: "{bcrypt}$2y$10$Ds/CB6jlY5a4/NU4.RvRI.9oZ16Bp6hx/Xcct1c2XFwYRdMbTHJVu"
+    #    roles: administrator
+
+    # similarly manager and user are 1, 2
+
+    # yedit from Ansible Galaxy to configure .yamls
+    # - name: Rock - Check Admin Username Readable
+    #   become: true
+    #   yedit:
+    #     src: "/etc/opal/rock/conf/application.yml"
+    #     key: security.users
+    #     state: "list"
+    #   register: yeditout
+    # - debug: var=yeditout
+    # - name: Rock - Update Admin Username
+    #   become: true
+    #   yedit:
+    #     src: "/etc/opal/rock/conf/application.yml"
+    #     key: security.users[0].id
+    #     value: "{{rockadmin}}"
+    # - name: Rock - Update Admin Password
+    #   become: true
+    #   yedit:
+    #     src: "{{ROCK_CONFIG_PATH}}"
+    #     key: security.users[0].secret
+    #     value: "{{rockpass}}"
+    
+    # # Step 3: Restart Rock Service
+    # - name: Rock - Check if Rock Running
+    #   become: true
+    #   systemd:
+    #     name: rock
+    #     state: restarted
+
+    # # Step 4: Check Rock Service Running
+    # - name: Rock - Check if Rock Running
+    #   become: true
+    #   systemd:
+    #     name: rock
+    #     state: started
+
+    # # Step 5: Update variables on opal-side
+    # - name: Opal - Set Opal Config
+    #   ansible.builtin.set_fact:
+    #     OPAL_CONFIG_PATH: "/etc/opal/opal/conf/opal-config.properties"
+    #   register: opal_set_fact_output
+    # - debug: var=opal_set_fact_output
+    # - name: Opal - Update Rock Admin Username
+    #   become: true
+    #   lineinfile:
+    #     path: "{{OPAL_CONFIG_PATH}}"
+    #     search_string: 'rock.default.administrator.username'
+    #     line: "rock.default.administrator.username={{rockadmin}}"
+    #     state: present
+    # - name: Opal - Update Rock Admin Password
+    #   become: true
+    #   lineinfile:
+    #     path: "{{OPAL_CONFIG_PATH}}"
+    #     search_string: 'rock.default.administrator.password'
+    #     line: "rock.default.administrator.password={{rockpass}}"
+    #     state: present
+    
+    # # Step 6: Restart Opal
+    # - name: Opal - Restarting Opal to Update Rock Information
+    #   become: true
+    #   systemd:
+    #     name: opal
+    #     state: restarted
+
+    # # Step 7: Check opal running
+    # - name: Opal - Check Opal running correctly
+    #   become: true
+    #   systemd:
+    #     name: opal
+    #     state: started
