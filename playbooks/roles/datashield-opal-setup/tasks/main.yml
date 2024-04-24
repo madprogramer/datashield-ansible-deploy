@@ -1,0 +1,83 @@
+---
+# tasks file for datashield-opal-setup
+- name: Opal Installation
+  block:
+    - name: Opal - Get Opal Key
+      become: true
+      shell: curl -fsSL https://www.obiba.org/assets/obiba-pub.pem | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/obiba.gpg
+      register: opal_obiba_output
+    - name: Opal - Tee Opal
+      become: true
+      shell: echo 'deb https://obiba.jfrog.io/artifactory/debian-local all main' | sudo tee /etc/apt/sources.list.d/obiba.list
+      register: opal_tee_output
+    - name: Opal - Update apt packages
+      become: true
+      apt:
+        update_cache: yes
+    - name: Opal - Installing Opal
+      become: true
+      apt:
+        name: opal
+
+- name: Opal Configuration
+  block:
+
+  - name: Set Java Version
+    become:
+    lineinfile:
+      path: /etc/default/opal
+      search_string: 'JAVA='
+      line: "JAVA=/opt/java/jdk-11.0.22+7/bin/java"
+
+  # - name: Run shiro-hasher
+  #   become: true
+  #   expect:
+  #     command: "./shiro-hasher -p"
+  #     responses:
+  #       "(.*)Password(.*)": "{{ opal_administrator_password }}"
+  #     chdir: "/usr/share/opal/tools/"
+  #     echo: true
+  #   register: shiro_hasher_result
+
+  # # Debugging  
+
+  # - name: Display shiro-hasher output
+  #   debug:
+  #     var: shiro_hasher_result.stdout_lines[2]
+
+  # - name: Display intended password
+  #   debug:
+  #     var: opal_administrator_password
+
+  # - name: Opal - Update Admin Password 
+  #   become: true
+  #   lineinfile:
+  #     path: /etc/opal/shiro.ini
+  #     search_string: 'administrator ='
+  #     line: "administrator = {{shiro_hasher_result.stdout_lines[2]}},admin"
+
+  # #- name: Opal - Configure Port
+  # #  become: true
+  # #  lineinfile:
+  # #    path: /etc/opal/opal-config.properties
+  # #    search_string: 'org.obiba.realm.url'
+  # #    line: "org.obiba.realm.url=https://localhost:{{opalport}}"
+  # - name: Opal - Configure Port (HTTP)
+  #   become: true
+  #   lineinfile:
+  #     path: /etc/opal/opal-config.properties
+  #     search_string: 'org.obiba.opal.http.port'
+  #     line: "org.obiba.opal.http.port={{opalHTTPport}}"
+
+  # - name: Opal - Configure Port (HTTPS)
+  #   become: true
+  #   lineinfile:
+  #     path: /etc/opal/opal-config.properties
+  #     search_string: 'org.obiba.opal.https.port'
+  #     line: "org.obiba.opal.https.port={{opalHTTPSport}}"
+
+  - name: Opal - Restarting Opal to Update Configuration
+    become: true
+    systemd:
+      name: opal
+      state: restarted
