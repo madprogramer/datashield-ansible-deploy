@@ -3,11 +3,11 @@
 - name: Rock Installation and Configuration
   block:
     - name: Rock - Installing Rock
-     become: true
-     apt:
-       name: rock=1.0.16
-     async: 900
-     poll: 900
+      become: true
+      apt:
+        name: rock=1.0.16
+      async: 900
+      poll: 900
     
     # https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
     # This Step is required for when ROCK_HOME is not defined
