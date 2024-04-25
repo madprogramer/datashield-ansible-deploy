@@ -50,21 +50,24 @@
       apt:
         name: libcurl4-openssl-dev
 
-    # - name: R Packages - Install Pacman
-    #   shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
-    #   become: true
-    # - name: R Packages - dsBase Installation
-    #   shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
-    #   become: true
-    # - name: R Packages - Helper Packages Installation, this might take a while
-    #   shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
-    #   become: true
-    # - name: R Packages - OpalR Installation, this might take a while
-    #   shell: Rscript -e "pacman::p_install_gh('obiba/opalr', dependencies=TRUE)"
-    #   become: true
-    # - name: R Packages - dsSwissKnife Installation, this might take a while
-    #   shell: Rscript -e "pacman::p_install_gh('sib-swiss/dsSwissKnife', dependencies=TRUE)"
-    #   become: true
+    - name: R Packages - Install Rserve
+      shell: Rscript -e "install.packages(c('Rserve'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+    - name: R Packages - Install Pacman
+      shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+    - name: R Packages - dsBase Installation
+      shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
+      become: true
+    - name: R Packages - Helper Packages Installation, this might take a while
+      shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+    - name: R Packages - OpalR Installation, this might take a while
+      shell: Rscript -e "pacman::p_install_gh('obiba/opalr', dependencies=TRUE)"
+      become: true
+    - name: R Packages - dsSwissKnife Installation, this might take a while
+      shell: Rscript -e "pacman::p_install_gh('sib-swiss/dsSwissKnife', dependencies=TRUE)"
+      become: true
 
     # LEGACY  
     #- name: OpalR - Installation, this might take a while

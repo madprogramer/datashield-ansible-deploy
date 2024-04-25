@@ -17,10 +17,10 @@
     - role: kwoodson.yedit
    
     # Custom
-    #- role: datashield-mongodb-setup
-    #- role: datashield-R-setup
+    - role: datashield-mongodb-setup
+    - role: datashield-R-setup
     - role: datashield-opal-setup
-    #- role: datashield-rock-setup
+    - role: datashield-rock-setup
     - role: datashield-opal-python-api-setup
 
   # Tasks

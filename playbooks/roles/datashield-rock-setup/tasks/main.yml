@@ -3,11 +3,11 @@
 - name: Rock Installation and Configuration
   block:
     - name: Rock - Installing Rock
-      become: true
-      apt:
-        name: rock
-      async: 900
-      poll: 900
+     become: true
+     apt:
+       name: rock=1.0.16
+     async: 900
+     poll: 900
     
     # https://rockdoc.obiba.org/en/latest/admin/configuration.html#users-configuration
     # This Step is required for when ROCK_HOME is not defined
@@ -17,6 +17,30 @@
         ROCK_CONFIG_PATH: "/etc/opal/rock/conf/application.yml"
       register: rock_set_fact_output
     - debug: var=rock_set_fact_output
+
+    # Manual Fix
+    # Ensure that R version IS the correct one, in usr/local/bin/R
+    - name: Rock - Set R Version
+      become: true
+      yedit:
+        src: /var/lib/rock/conf/application.yaml
+        key: r.exec
+        value: "/usr/local/bin/R"  
+
+    # Restart Rock 
+    - name: Rock - Restarting Rock to Update Configuration
+      become: true
+      systemd:
+        name: rock
+        state: restarted
+    - name: Rock - pause for Rock restart 
+      pause:
+        seconds: "{{ pause_seconds|default(10) }}"
+    - name: Rock - Check Rock is running correctly
+      become: true
+      systemd:
+        name: rock
+        state: started  
 
     # Step 1: Edit File (# administrator, can do all)
     # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
