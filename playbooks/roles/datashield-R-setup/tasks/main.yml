@@ -6,15 +6,34 @@
 
     # TODO: CHECK IF R INSTALLED AND SKIP IF INSTALLED (?)
     
-    - name: R - Install libicu dependency if missing
-      become: true
+
+    # Dirty Fix for libicu66
+    - name: Determine system architecture
+      shell: dpkg --print-architecture
+      register: architecture
+
+    - name: Download libicu66 package
+      get_url:
+        url: >-
+          {% if architecture.stdout == 'amd64' %}
+          http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb
+          {% elif architecture.stdout == 'i386' %}
+          http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_i386.deb
+          {% else %}
+          # Handle other architectures if needed
+          {% endif %}
+        dest: /tmp/libicu66.deb
+
+    - name: Install libicu66 package
       apt:
-        name: libicu-dev
+        deb: /tmp/libicu66.deb
+
     - name: Create R image dir
       become: true
       ansible.builtin.file:
         path: R-images
         state: directory
+
     #- name: Export R_VERSION_INSTALLED_BY_ANSIBLE variable
     #  environment:
     #    R_VERSION_INSTALLED_BY_ANSIBLE: "4.3.3"
