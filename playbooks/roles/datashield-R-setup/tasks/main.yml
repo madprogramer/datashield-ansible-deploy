@@ -13,10 +13,10 @@
       register: architecture
 
     - name: Remove libicu packages
+      become: true  # Use sudo for privileged operations
       apt:
         name: libicu*
         state: absent
-        become: yes  # Use sudo for privileged operations
 
     - name: Download libicu66 package
       get_url:
