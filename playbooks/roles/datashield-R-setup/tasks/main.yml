@@ -101,9 +101,12 @@
     - name: R Packages - Install Pacman
       shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
       become: true
+      timeout: 600 
+      
     - name: R Packages - dsBase Installation
       shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
       become: true
+      timeout: 600 
     - name: R Packages - units Installation
       shell: Rscript -e "pacman::p_install_gh('r-quantities/units', dependencies=TRUE)"
       become: true
