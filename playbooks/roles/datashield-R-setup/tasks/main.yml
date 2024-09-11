@@ -110,7 +110,7 @@
     - name: R Packages - units Installation
       shell: Rscript -e "pacman::p_install_gh('r-quantities/units', dependencies=TRUE)"
       become: true
-      timeout: 600 
+      timeout: 1200 
     - name: R Packages - sf Installation
       shell: Rscript -e "pacman::p_install_gh('r-spatial/sf', dependencies=TRUE)"
       become: true
