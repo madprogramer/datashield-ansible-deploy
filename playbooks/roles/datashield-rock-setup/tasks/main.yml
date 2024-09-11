@@ -27,8 +27,7 @@
         key: r.exec
         value: "/usr/local/bin/R"
 
-    #   
-    /var/lib/rock/conf/Rprofile.R MUST BE UPDATED TO HAVE THE CORRECT LIBRARY
+    # TODO: /var/lib/rock/conf/Rprofile.R MUST BE UPDATED TO HAVE THE CORRECT LIBRARY
 
     # Restart Rock 
     - name: Rock - Restarting Rock to Update Configuration
@@ -45,8 +44,8 @@
         name: rock
         state: started
 
-    OPAL PROFILE MUST STILL BE INITIALIZED MANUALLY FROM TEH UI
-    IS THERE A WORKAROUND TO THIS?
+    # OPAL PROFILE MUST STILL BE INITIALIZED MANUALLY FROM TEH UI
+    # IS THERE A WORKAROUND TO THIS?
 
     # Step 1: Edit File (# administrator, can do all)
     # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/blockinfile_module.html
