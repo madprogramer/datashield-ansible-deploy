@@ -102,7 +102,7 @@
       shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
       become: true
       timeout: 600 
-      
+
     - name: R Packages - dsBase Installation
       shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
       become: true
@@ -110,9 +110,11 @@
     - name: R Packages - units Installation
       shell: Rscript -e "pacman::p_install_gh('r-quantities/units', dependencies=TRUE)"
       become: true
+      timeout: 600 
     - name: R Packages - sf Installation
       shell: Rscript -e "pacman::p_install_gh('r-spatial/sf', dependencies=TRUE)"
       become: true
+      timeout: 600 
 
     - name: R Packages - Install jsonlite
       shell: Rscript -e "install.packages(c('jsonlite'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
