@@ -12,6 +12,12 @@
       shell: dpkg --print-architecture
       register: architecture
 
+    - name: Remove libicu packages
+      apt:
+        name: libicu*
+        state: absent
+        become: yes  # Use sudo for privileged operations
+
     - name: Download libicu66 package
       get_url:
         url: >-
