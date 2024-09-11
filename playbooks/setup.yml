@@ -17,7 +17,12 @@
     - role: kwoodson.yedit
    
     # Custom
-    - role: datashield-mongodb-setup
+    
+    - name: Set-Up MongoDB if fact is set
+      include_role:
+        name: datashield-mongodb-setup
+      when: mongoDB_setup == true
+
     - role: datashield-R-setup
     - role: datashield-opal-setup
     - role: datashield-rock-setup
