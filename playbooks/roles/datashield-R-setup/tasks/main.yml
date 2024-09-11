@@ -6,6 +6,10 @@
 
     # TODO: CHECK IF R INSTALLED AND SKIP IF INSTALLED (?)
     
+    - name: R - Install libicu dependency if missing
+      become: true
+      apt:
+        name: libicu-dev
     - name: Create R image dir
       become: true
       ansible.builtin.file:
