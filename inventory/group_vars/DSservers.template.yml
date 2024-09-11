@@ -1,4 +1,6 @@
 ---
+# User for installation
+Host_User: root
 
 # R - Installed by Ansible
 R_VERSION_INSTALLED_BY_ANSIBLE: "4.3.3"
@@ -15,6 +17,9 @@ opal_administrator_password: password    # Use to reset opal admin password
 
 # Rock (R Server for Opal)
 
+rockadmin: administrator        # Rock Admin
+rockpass:  password             # Rock Password
+
 # Databases
 
 mongoDB_setup: false # Enable to Install MongoDB
@@ -24,5 +29,5 @@ opalpass: opalpass   # MongoDB Password for Opal User
 
 MySQL_setup: false # Unused. Enable to Install MySQL
 
-rockadmin: administrator        # Rock Admin
-rockpass:  password             # Rock Password
+# KEEP SSH ALIVE
+ansible_ssh_extra_args: '-o ServerAliveInterval=60'
