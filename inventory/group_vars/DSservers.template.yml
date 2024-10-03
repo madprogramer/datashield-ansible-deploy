@@ -1,6 +1,6 @@
 ---
-# User for installation
-Host_User: root
+# User to become for installation
+Host_User_Name: root
 
 # R - Installed by Ansible
 R_VERSION_INSTALLED_BY_ANSIBLE: "4.3.3"
