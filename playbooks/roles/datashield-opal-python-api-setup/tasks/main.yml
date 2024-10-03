@@ -4,9 +4,11 @@
   block:
     - name: PIP Installation
       become: true
+      become_user: "{{ Host_User_Name }}"
       apt:
         name: python3-pip
     - name: Opal Python API Installation
       become: true
+      become_user: "{{ Host_User_Name }}"
       shell: pip install obiba-opal
       register: obiba_opal_output

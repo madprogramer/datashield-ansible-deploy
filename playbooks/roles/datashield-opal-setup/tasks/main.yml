@@ -4,18 +4,22 @@
   block:
     - name: Opal - Get Opal Key
       become: true
+      become_user: "{{ Host_User_Name }}"
       shell: curl -fsSL https://www.obiba.org/assets/obiba-pub.pem | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/obiba.gpg
       register: opal_obiba_output
     - name: Opal - Tee Opal
       become: true
+      become_user: "{{ Host_User_Name }}"
       shell: echo 'deb https://obiba.jfrog.io/artifactory/debian-local all main' | sudo tee /etc/apt/sources.list.d/obiba.list
       register: opal_tee_output
     - name: Opal - Update apt packages
       become: true
+      become_user: "{{ Host_User_Name }}"
       apt:
         update_cache: yes
     - name: Opal - Installing Opal
       become: true
+      become_user: "{{ Host_User_Name }}"
       apt:
         name: opal
 
@@ -23,7 +27,8 @@
   block:
 
   - name: Set Java Version
-    become:
+    become: true
+    become_user: "{{ Host_User_Name }}"
     lineinfile:
       path: /etc/default/opal
       search_string: 'JAVA='
@@ -34,6 +39,7 @@
 
   - name: Run shiro-hasher
     become: true
+    become_user: "{{ Host_User_Name }}"
     expect:
       command: "./shiro-hasher -p"
       responses:
@@ -54,6 +60,7 @@
 
   - name: Opal - Update Admin Password 
     become: true
+    become_user: "{{ Host_User_Name }}"
     lineinfile:
       path: /etc/opal/shiro.ini
       search_string: ',admin' # line: "admin = {{shiro_hasher_result.stdout_lines[2]}},admin"
@@ -61,6 +68,7 @@
       
   - name: Opal - Configure Port (HTTP)
     become: true
+    become_user: "{{ Host_User_Name }}"
     lineinfile:
       path: /etc/opal/opal-config.properties
       search_string: 'org.obiba.opal.http.port'
@@ -68,6 +76,7 @@
 
   - name: Opal - Configure Port (HTTPS)
     become: true
+    become_user: "{{ Host_User_Name }}"
     lineinfile:
       path: /etc/opal/opal-config.properties
       search_string: 'org.obiba.opal.https.port'
@@ -75,6 +84,7 @@
 
   - name: Opal - Restarting Opal to Update Configuration
     become: true
+    become_user: "{{ Host_User_Name }}"
     systemd:
       name: opal
       state: restarted
@@ -83,6 +93,7 @@
       seconds: "{{ pause_seconds|default(10) }}"
   - name: Opal - Check Opal is running correctly
     become: true
+    become_user: "{{ Host_User_Name }}"
     systemd:
       name: opal
       state: started

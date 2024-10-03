@@ -9,11 +9,13 @@
       block:
         - name: MongoDB - Installing GNU PG
           become: true
+          become_user: "{{ Host_User_Name }}"
           apt:
             name: gnupg
 
         - name: MongoDB - Get MongoDB PGP
           become: true
+          become_user: "{{ Host_User_Name }}"
           shell: curl -fsSL https://pgp.mongodb.com/server-5.0.asc | \ gpg -o /usr/share/keyrings/mongodb-server-5.0.gpg --batch --yes \ --dearmor
           async: 10
           poll: 10
@@ -24,6 +26,7 @@
 
         - name: MongoDB - Create a list file for MongoDB
           become: true
+          become_user: "{{ Host_User_Name }}"
           shell: echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-5.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
           async: 10
           poll: 10
@@ -34,11 +37,13 @@
 
         - name: MongoDB - Update apt packages
           become: true
+          become_user: "{{ Host_User_Name }}"
           apt:
             update_cache: yes
 
         - name: MongoDB - Installing MongoDB.
           become: true
+          become_user: "{{ Host_User_Name }}"
           apt:
             name: mongodb
 
@@ -88,6 +93,7 @@
     #        state: absent
     #    - name: MongoDB - Create Symbolic Link
     #      become: true 
+    #      become_user: "{{ Host_User_Name }}"
     #      file:
     #        src: "/mnt/mongodb"
     #        dest: "/var/lib/mongodb"

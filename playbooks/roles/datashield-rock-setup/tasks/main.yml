@@ -4,6 +4,7 @@
   block:
     - name: Rock - Installing Rock
       become: true
+      become_user: "{{ Host_User_Name }}"
       apt:
         name: rock=2.0.0
       async: 900
@@ -22,6 +23,7 @@
     # Ensure that R version IS the correct one, in usr/local/bin/R
     - name: Rock - Set R Version
       become: true
+      become_user: "{{ Host_User_Name }}"
       yedit:
         src: /var/lib/rock/conf/application.yaml
         key: r.exec
@@ -32,6 +34,7 @@
     # Restart Rock 
     - name: Rock - Restarting Rock to Update Configuration
       become: true
+      become_user: "{{ Host_User_Name }}"
       systemd:
         name: rock
         state: restarted
@@ -40,6 +43,7 @@
         seconds: "{{ pause_seconds|default(10) }}"
     - name: Rock - Check Rock is running correctly
       become: true
+      become_user: "{{ Host_User_Name }}"
       systemd:
         name: rock
         state: started
@@ -61,6 +65,7 @@
     # yedit from Ansible Galaxy to configure .yamls
     # - name: Rock - Check Admin Username Readable
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   yedit:
     #     src: "/etc/opal/rock/conf/application.yml"
     #     key: security.users
@@ -69,12 +74,14 @@
     # - debug: var=yeditout
     # - name: Rock - Update Admin Username
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   yedit:
     #     src: "/etc/opal/rock/conf/application.yml"
     #     key: security.users[0].id
     #     value: "{{rockadmin}}"
     # - name: Rock - Update Admin Password
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   yedit:
     #     src: "{{ROCK_CONFIG_PATH}}"
     #     key: security.users[0].secret
@@ -83,6 +90,7 @@
     # # Step 3: Restart Rock Service
     # - name: Rock - Check if Rock Running
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   systemd:
     #     name: rock
     #     state: restarted
@@ -90,6 +98,7 @@
     # # Step 4: Check Rock Service Running
     # - name: Rock - Check if Rock Running
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   systemd:
     #     name: rock
     #     state: started
@@ -102,6 +111,7 @@
     # - debug: var=opal_set_fact_output
     # - name: Opal - Update Rock Admin Username
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   lineinfile:
     #     path: "{{OPAL_CONFIG_PATH}}"
     #     search_string: 'rock.default.administrator.username'
@@ -109,6 +119,7 @@
     #     state: present
     # - name: Opal - Update Rock Admin Password
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   lineinfile:
     #     path: "{{OPAL_CONFIG_PATH}}"
     #     search_string: 'rock.default.administrator.password'
@@ -118,6 +129,7 @@
     # # Step 6: Restart Opal
     # - name: Opal - Restarting Opal to Update Rock Information
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   systemd:
     #     name: opal
     #     state: restarted
@@ -125,6 +137,7 @@
     # # Step 7: Check opal running
     # - name: Opal - Check Opal running correctly
     #   become: true
+    #   become_user: "{{ Host_User_Name }}"
     #   systemd:
     #     name: opal
     #     state: started
