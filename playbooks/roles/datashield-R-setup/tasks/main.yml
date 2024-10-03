@@ -130,7 +130,7 @@
       shell: Rscript -e "pacman::p_install_gh('r-spatial/sf', dependencies=TRUE)"
       become: true
       become_user: "{{ Host_User_Name }}"
-      timeout: 1200 
+      timeout: 1800 
 
     - name: R Packages - Install jsonlite
       shell: Rscript -e "install.packages(c('jsonlite'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
