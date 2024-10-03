@@ -9,6 +9,7 @@
 
     # Custom
     - role: datashield-getinfo
+    - role: datashield-SDKMAN-setup
 
     # From Galaxy
     #- role: gantsign.java
@@ -18,8 +19,8 @@
    
     # Custom
     
-    - role: datashield-mongodb-setup
-      when: mongoDB_setup == true
+    # - role: datashield-mongodb-setup
+    #   when: mongoDB_setup == true
 
     - role: datashield-R-setup
     - role: datashield-opal-setup

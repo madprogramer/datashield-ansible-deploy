@@ -1,0 +1,46 @@
+---
+# tasks file datashield-SDKMAN-setup
+- name: SDKMAN! - Install SDKMAN!
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      curl -s \"https://get.sdkman.io\" | bash
+    "
+    
+- name: SDKMAN! - Verify installation
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      source \"$HOME/.sdkman/bin/sdkman-init.sh\"  # Manually initialize SDKMAN!
+      sdk version  # Echo the output
+    "
+  register: SDKMANversion
+
+- name: SDKMAN! - Print Versino
+  debug: 
+    var: SDKMANversion.stdout_lines
+
+- name: SDKMAN! - Install Java 8
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      source \"$HOME/.sdkman/bin/sdkman-init.sh\"  # Manually initialize SDKMAN!
+      sdk install java 8.0.422-amzn
+    "
+  async: 60  # Run asynchronously with a timeout of 60 seconds
+  poll: 5    # Check the status every 5 seconds
+
+- name: SDKMAN! - Install Java 21
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      source \"$HOME/.sdkman/bin/sdkman-init.sh\"  # Manually initialize SDKMAN!
+      sdk install java 21.0.2-amzn
+    "
+  async: 60  # Run asynchronously with a timeout of 60 seconds
+  poll: 5    # Check the status every 5 seconds
+

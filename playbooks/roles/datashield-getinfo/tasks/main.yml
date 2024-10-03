@@ -28,10 +28,8 @@
     name: gdebi-core
     state: present
 
-# Install Java
-- name: Install Java (8)
-  become: true
-  become_user: "{{ Host_User_Name }}"
-  apt:
-    name: openjdk-8-jdk
-    state: present
+# Needed for jEnv and a few other things
+# - name: Install apt-transport-https
+#   apt:
+#     name: apt-transport-https
+#     state: present
