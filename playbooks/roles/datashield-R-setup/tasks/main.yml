@@ -1,0 +1,230 @@
+---
+# tasks file for datashield-R-setup
+
+- name: R Installation
+  block:
+
+    # TODO: CHECK IF R INSTALLED AND SKIP IF INSTALLED (?)
+    
+
+    # Dirty Fix for libicu66
+    - name: Determine system architecture
+      shell: dpkg --print-architecture
+      register: architecture
+
+    - name: Remove libicu packages
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      apt:
+        name: libicu*
+        state: absent
+
+    - name: Download libicu66 package
+      get_url:
+        url: >-
+          {% if architecture.stdout == 'amd64' %}
+          http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb
+          {% elif architecture.stdout == 'i386' %}
+          http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_i386.deb
+          {% else %}
+          # Handle other architectures if needed
+          {% endif %}
+        dest: /tmp/libicu66.deb
+
+    - name: Install libicu66 package
+      apt:
+        deb: /tmp/libicu66.deb
+
+    - name: Create R image dir
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      ansible.builtin.file:
+        path: R-images
+        state: directory
+
+    #- name: Export R_VERSION_INSTALLED_BY_ANSIBLE variable
+    #  environment:
+    #    R_VERSION_INSTALLED_BY_ANSIBLE: "4.3.3"
+    #  shell: echo "R_VERSION_INSTALLED_BY_ANSIBLE is $R_VERSION_INSTALLED_BY_ANSIBLE. TODO! Parameterise"
+    - name: R - Get R Image
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      shell: curl -o R-images/r-{{ R_VERSION_INSTALLED_BY_ANSIBLE }}_1_amd64.deb https://cdn.rstudio.com/r/ubuntu-2004/pkgs/r-{{ R_VERSION_INSTALLED_BY_ANSIBLE }}_1_amd64.deb
+      register: R_curl_output
+    - name: R - Gdebi R Image
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      shell: gdebi --n R-images/r-{{ R_VERSION_INSTALLED_BY_ANSIBLE }}_1_amd64.deb
+      register: R_gdebi_output
+    - name: R - Test for Errors
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      shell: /opt/R/{{ R_VERSION_INSTALLED_BY_ANSIBLE }}/bin/R --version
+      register: R_version_output
+    - name: Create symbolic link for R
+      file:
+        src: /opt/R/{{ R_VERSION_INSTALLED_BY_ANSIBLE }}/bin/R
+        dest: /usr/local/bin/R
+        state: link
+    - name: Create symbolic link for Rscript
+      file:
+        src: /opt/R/{{ R_VERSION_INSTALLED_BY_ANSIBLE }}/bin/Rscript
+        dest: /usr/local/bin/Rscript
+        state: link
+
+- name: R Packages Installation
+  block:
+     
+    - name: R Packages - Install XML
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      apt:
+        name: libxml2-dev
+    - name: R Packages - Install OpenSSL
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      apt:
+        name: libcurl4-openssl-dev
+    - name: R Packages - Install libunits
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      apt:
+        name: libudunits2-dev
+    - name: R Packages - Install unixodbc
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      apt:
+        name: unixodbc-dev
+    - name: R Packages - Install mysqlclient
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      apt:
+        name: libmysqlclient-dev
+    - name: R Packages - Install gdal
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      apt:
+        name: libgdal-dev
+
+    - name: R Packages - Install Rserve
+      shell: Rscript -e "install.packages(c('Rserve'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+    - name: R Packages - Install Pacman
+      shell: Rscript -e "install.packages(c('pacman'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      timeout: 600 
+
+    - name: R Packages - dsBase Installation
+      shell: Rscript -e "pacman::p_install_gh('datashield/dsBase', dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      timeout: 600 
+    - name: R Packages - units Installation
+      shell: Rscript -e "pacman::p_install_gh('r-quantities/units', dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      timeout: 1200 
+    - name: R Packages - sf Installation
+      shell: Rscript -e "pacman::p_install_gh('r-spatial/sf', dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+      timeout: 1800 
+
+    - name: R Packages - Install jsonlite
+      shell: Rscript -e "install.packages(c('jsonlite'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+    - name: R Packages - Install parallel
+      shell: Rscript -e "install.packages(c('parallel'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+
+
+    - name: R Packages - Helper Packages Installation, this might take a while
+      shell: Rscript -e "install.packages(c('resourcer', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cran.r-project.org/'), dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+    - name: R Packages - OpalR Installation, this might take a while
+      shell: Rscript -e "pacman::p_install_gh('obiba/opalr', dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+    - name: R Packages - dsSwissKnife Installation, this might take a while
+      shell: Rscript -e "pacman::p_install_gh('sib-swiss/dsSwissKnife', dependencies=TRUE)"
+      become: true
+      become_user: "{{ Host_User_Name }}"
+
+    # LEGACY  
+    #- name: OpalR - Installation, this might take a while
+    #  shell: Rscript -e "install.packages(c('resourcer', 'opalr', 'tidyverse', 'knitr', 'rmarkdown', 'BiocManager'), repos=c('https://cloud.r-project.org', 'https://cran.obiba.org'), dependencies=TRUE)"
+    #  become: true
+    #  become_user: "{{ Host_User_Name }}"
+    # - name: OpalR - Also Installing Rserve
+    #   shell: Rscript -e "install.packages('Rserve', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+    #   become_user: "{{ Host_User_Name }}"
+    # - name: OpalR - Also Installing lme4
+    #   shell: Rscript -e "install.packages('lme4', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+    #   become_user: "{{ Host_User_Name }}"
+    # - name: OpalR - Also Installing dplyr
+    #   shell: Rscript -e "install.packages('dplyr', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+    #   become_user: "{{ Host_User_Name }}"
+    # - name: OpalR - Also Installing reshape2
+    #   shell: Rscript -e "install.packages('reshape2', 'http://www.rforge.net/', type='source', lib='/usr/local/lib/R/site-library')"
+    #   become: true
+    #   become_user: "{{ Host_User_Name }}"
+
+## EVEN MORE LEGACY
+
+# - name: R Installation (Legacy)
+#   block:
+#     - name: R - Add apt Key
+#       become: true
+#       become_user: "{{ Host_User_Name }}"
+#       apt_key:
+#         keyserver: keyserver.ubuntu.com
+#         id: E298A3A825C0D65DFD57CBB651716619E084DAB9
+
+#     # - name: R - Add apt Key
+#     #   become: true
+#     #   become_user: "{{ Host_User_Name }}"
+#     #   shell: "add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/'"
+
+#     # - name: R - Update apt packages
+#     #   become: true
+#     #   become_user: "{{ Host_User_Name }}"
+#     #   apt:
+#     #     update_cache: yes
+
+    # - name: R - Install Base R
+    #   become: true
+    #   become_user: "{{ Host_User_Name }}"
+    #   apt:
+    #     pkg:
+    #       - r-base 
+    #       - r-base-core 
+    #       - r-base-dev
+    # - name: R - Install R Packages
+    #   become: true
+    #   become_user: "{{ Host_User_Name }}"
+    #   apt:
+    #     pkg:
+    #       - libpq-dev 
+    #       - libmariadbclient-dev 
+    #       - libssh-dev 
+    #       - libssl-dev 
+    #       - libsasl2-dev 
+    #       - libxml2-dev 
+    #       - libcurl4-openssl-dev 
+    #       - libfontconfig1-dev
+    #       - libmagick++-dev 
+    #       - freeglut3-dev 
+    #       - libharfbuzz-dev 
+    #       - libfribidi-dev  
+    #       - libjq-dev 
+    #       - cmake 
+    #       - cargo
+    #       - r-cran-jsonlite

@@ -1,0 +1,45 @@
+---
+# tasks file for getinfo
+- name: Checking System Information
+  debug:
+    msg: "The hostname is {{ ansible_distribution }}, version: {{ ansible_facts['lsb']['release'] }}."
+
+- name: Gathering Package Facts
+  package_facts:
+    manager: auto
+
+- name: apt - Update cache
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  apt:
+    update_cache: yes
+
+- name: Install unzip package
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  apt:
+    name: zip
+
+# Install Gdebi
+- name: Install gdebi-core
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  apt:
+    name: gdebi-core
+    state: present
+
+# Needed for jEnv and a few other things
+# - name: Install apt-transport-https
+#   apt:
+#     name: apt-transport-https
+#     state: present
+
+# Add opt to PATH
+- name: Add /opt to PATH in /etc/environment
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  lineinfile:
+    path: /etc/environment
+    regexp: '^PATH='
+    line: 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt"'
+    state: present

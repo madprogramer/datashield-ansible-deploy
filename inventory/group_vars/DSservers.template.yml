@@ -1,7 +1,33 @@
 ---
-rockadmin: notadmin     # Rock Admin
-rockpass:  pwd          # Rock Password
+# User to become for installation
+Host_User_Name: root
 
-opalport: 8443       # Port to serve Opal on
+# R - Installed by Ansible
+R_VERSION_INSTALLED_BY_ANSIBLE: "4.3.3"
+
+# Opal (DataSHIELD Server Software)
+#opalport: 8443           # Port to serve Opal on
+opalHTTPport: 8080        # Port to serve Opal on
+opalHTTPSport: 8443       # Port to serve Opal on
+
+opal_administrator_username: admin       # Use to reset opal admin username
+opal_administrator_password: password    # Use to reset opal admin password
+
+# Armadillo (Alternative DataSHIELD Server Software)
+
+# Rock (R Server for Opal)
+
+rockadmin: administrator        # Rock Admin
+rockpass:  password             # Rock Password
+
+# Databases
+
+mongoDB_setup: false # Enable to Install MongoDB
+
 opaluser: opaluser   # MongoDB Username for Opal User
 opalpass: opalpass   # MongoDB Password for Opal User
+
+MySQL_setup: false # Unused. Enable to Install MySQL
+
+# KEEP SSH ALIVE
+ansible_ssh_extra_args: '-o ServerAliveInterval=60'

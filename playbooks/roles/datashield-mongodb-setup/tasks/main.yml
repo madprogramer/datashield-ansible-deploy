@@ -1,0 +1,124 @@
+---
+# tasks file for datashield-mongodb-setup
+
+# MongoDB
+- name: MongoDB Installation and Configuration
+  block:
+    - name: MongoDB Installation
+      # Following https://www.mongodb.com/docs/v5.0/tutorial/install-mongodb-on-ubuntu/
+      block:
+        - name: MongoDB - Installing GNU PG
+          become: true
+          become_user: "{{ Host_User_Name }}"
+          apt:
+            name: gnupg
+
+        - name: MongoDB - Get MongoDB PGP
+          become: true
+          become_user: "{{ Host_User_Name }}"
+          shell: curl -fsSL https://pgp.mongodb.com/server-5.0.asc | \ gpg -o /usr/share/keyrings/mongodb-server-5.0.gpg --batch --yes \ --dearmor
+          async: 10
+          poll: 10
+          register: mongodb_pgp_output
+
+        - name: MongoDB - Check PGP installed
+          debug: var=mongodb_pgp_output
+
+        - name: MongoDB - Create a list file for MongoDB
+          become: true
+          become_user: "{{ Host_User_Name }}"
+          shell: echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-5.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+          async: 10
+          poll: 10
+          register: mongodb_list_file_output
+
+        - name: MongoDB - Check MongoDB list file installed
+          debug: var=mongodb_list_file_output
+
+        - name: MongoDB - Update apt packages
+          become: true
+          become_user: "{{ Host_User_Name }}"
+          apt:
+            update_cache: yes
+
+        - name: MongoDB - Installing MongoDB.
+          become: true
+          become_user: "{{ Host_User_Name }}"
+          apt:
+            name: mongodb
+
+        - name: MongoDB - Create Opal User
+          shell: 'mongo admin --eval "db.createUser({
+          user: \"{{ opaluser }}\",
+          pwd: \"{{ opalpass }}\",
+          roles: [ { role: \"root\", db: \"admin\" } ]})"'
+
+          #user: \"{{ opaluser }}\",
+          #pwd: \"{{ opalpass }}\",
+          #roles: [ { role: \"root\", db: \"admin\" } ],
+          #mechanisms:[  
+          #  \"SCRAM-SHA-1\"
+          #]})"'
+
+          register: mongodb_opal_user_output
+          
+      when: "not 'mongodb' in ansible_facts.packages"
+      
+    #- name: MongoDB - Check if MongoDB Configured
+    #  set_fact:
+    #    #MongoDB_Configured: (MongoDB_Moved_Before & MongoDB_Opal_User_Created ) | false
+    #    # MongoDB_Configured: false
+    #- name: MongoDB - Check facts
+    #  debug:
+    #    msg: "MongoDB_Moved_Before: {{ MongoDB_Moved_Before }} and MongoDB_Opal_User_Created: {{ MongoDB_Opal_User_Created }}. Then is MongoDB_Configured: {{ MongoDB_Configured }}."
+
+
+    #- name: Move MongoDB
+    #  block: 
+    #    - name: MongoDB - Stop
+    #      systemd:
+    #        name: mongodb
+    #        state: stopped
+    #    - name: MongoDB - Mount MongoDB
+    #      copy:
+    #        src: /var/lib/mongodb
+    #        dest: /mnt/mongodb
+    #        owner: mongodb
+    #        group: mongodb
+    #        remote_src: true
+    #        #mode: u=rw,g=r,o=r
+    #    - name: MongoDB - Remove Original MongoDB lib
+    #      file:
+    #        path: /var/lib/mongodb
+    #        state: absent
+    #    - name: MongoDB - Create Symbolic Link
+    #      become: true 
+    #      become_user: "{{ Host_User_Name }}"
+    #      file:
+    #        src: "/mnt/mongodb"
+    #        dest: "/var/lib/mongodb"
+    #        owner: mongodb
+    #        group: mongodb
+    #        state: link
+    #        force: yes   
+    #      with_items:
+    #        - src: terraform
+    #        - src: tfenv
+    #    - name: MongoDB - Restart
+    #      systemd:
+    #        name: mongodb
+    #        state: restarted
+    #    - name: MongoDB - Mark as Moved
+    #      set_fact:
+    #        MongoDB_Moved_Before: true
+    #  when: "not MongoDB_Configured"
+
+    #- name: MongoDB - Create Opal User
+    #  shell: 'mongo admin --eval "db.createUser({user: \"{{ opaluser }}\", pwd: \"{{ opalpass }}\", roles: [ { role: \"root\", db: \"admin\" } ]})"'
+    #  register: mongodb_opal_user_output
+    #  when: "not MongoDB_Configured"
+
+    #- name: MongoDB - Mark Opal User as Created
+    #  set_fact:
+    #    MongoDB_Opal_User_Created: true
+    #  when: "not MongoDB_Configured"

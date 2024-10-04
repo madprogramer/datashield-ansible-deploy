@@ -1,4 +1,4 @@
-# DataSHIELD Ansible Deploy
+# DataSHIELD Ansible Deploy (dev branch)
 
 Ansible Playbook for Installing/Updating DataSHIELD ([Opal](https://www.obiba.org/pages/products/opal/)) servers.
 
@@ -11,7 +11,7 @@ Ansible Playbook for Installing/Updating DataSHIELD ([Opal](https://www.obiba.or
 5. Copy the `inventory/hosts.template` file into a new **`inventory/hosts`** file and modify to add in your own hosts.
   * There should be **no** file extension at the end of **`inventory/hosts`**. Make sure not to save as **`inventory/hosts.txt`**
 6. Copy the `inventory/group_vars/DSservers.template.yml` file into a new **`inventory/group_vars/DSservers.template.yml`** and make sure to modify variables to your own liking.
-7. Run with `playbooks/setup.yml -i inventory -K` from inside `datashield-ansible-deploy`.
+7. Run with `ansible-playbook playbooks/setup.yml -i inventory -K` from inside `datashield-ansible-deploy`.
 8. Enter root password when prompted with `BECOME:` by requesting it from your IT admin.
 9. **IMPORTANT: Ensure that your Database is registered to Opal once installation completes. [See discussion here.](https://datashield.discourse.group/t/cannot-add-table-to-project-on-opal/309/4)**
     * URL should be `mongodb://localhost:27017/opal_data?authSource=admin`

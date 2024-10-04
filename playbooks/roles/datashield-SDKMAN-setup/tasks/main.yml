@@ -1,0 +1,74 @@
+---
+# tasks file datashield-SDKMAN-setup
+
+- name: SDKMAN! - Set SDKMAN_DIR environment variable
+  set_fact:
+    sdkman_dir: "/opt/sdkman"
+
+- name: SDKMAN! - Install SDKMAN!
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      export SDKMAN_DIR="/{{ sdkman_dir }}/"
+      curl -s \"https://get.sdkman.io\" | bash
+    "
+  register: sdkman_output
+
+# - name: Print the output
+#   debug:
+#     var: sdkman_output.stdout_lines
+    
+- name: SDKMAN! - Verify Installation
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      export SDKMAN_DIR="/{{ sdkman_dir }}/"
+      source /opt/sdkman/bin/sdkman-init.sh        # Manually initialize SDKMAN!
+      echo \"SDKMAN! version:\" $(sdk version)     # Echo the output
+    "
+  register: SDKMANversion
+
+- name: SDKMAN! - Check Version
+  debug:
+    var: SDKMANversion.stdout_lines
+
+- name: SDKMAN! - Install Java 8
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      export SDKMAN_DIR="/{{ sdkman_dir }}/"
+      source /opt/sdkman/bin/sdkman-init.sh
+      sdk install java 8.0.422-amzn
+    "
+  async: 60  # Run asynchronously with a timeout of 60 seconds
+  poll: 5    # Check the status every 5 seconds
+
+- name: SDKMAN! - Install Java 21
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  shell: |
+    bash -l -c "
+      export SDKMAN_DIR="/{{ sdkman_dir }}/"
+      source /opt/sdkman/bin/sdkman-init.sh
+      sdk install java 21.0.2-amzn
+    "
+  async: 60  # Run asynchronously with a timeout of 60 seconds
+  poll: 5    # Check the status every 5 seconds
+# - name: SDKMAN! - Ensure opal user has ownership of Java 8 executable
+#   become: true
+#   become_user: "{{ Host_User_Name }}"
+#   file:
+#     path: /root/.sdkman/candidates/java/8.0.422-amzn/bin/java
+#     owner: opal
+#     group: opal 
+#     mode: '0755' 
+
+# - name: SDKMAN! - Set group write permission on Java 8 executable
+#   become: true 
+#   become_user: "{{ Host_User_Name }}"
+#   file:
+#     path: "$HOME/.sdkman/candidates/java/21.0.2-amzn/bin/java"
+#     mode: 'g+w'
