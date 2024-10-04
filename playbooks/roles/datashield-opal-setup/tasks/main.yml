@@ -32,10 +32,9 @@
     lineinfile:
       path: /etc/default/opal
       search_string: 'JAVA='
-      line: "JAVA=/usr/bin/java"
-      #line: "JAVA=/opt/java/jdk8u402-b06/bin/java"
-      # TODO: replace w/ ${JAVA_HOME}
-      # 11.0.22+7
+      #line: "JAVA=/usr/bin/java" 
+      #line: "JAVA=/root/.sdkman/candidates/java/8.0.422-amzn/bin/java" #Fix for Opal, still on Java 8
+      line: "JAVA=/opt/sdkman/candidates/java/8.0.422-amzn/bin/java" #Fix for Opal, still on Java 8
 
   - name: Run shiro-hasher
     become: true

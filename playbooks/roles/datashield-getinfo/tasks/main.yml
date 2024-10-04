@@ -33,3 +33,13 @@
 #   apt:
 #     name: apt-transport-https
 #     state: present
+
+# Add opt to PATH
+- name: Add /opt to PATH in /etc/environment
+  become: true
+  become_user: "{{ Host_User_Name }}"
+  lineinfile:
+    path: /etc/environment
+    regexp: '^PATH='
+    line: 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt"'
+    state: present
